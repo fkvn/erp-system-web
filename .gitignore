@@ -1,6 +1,7 @@
 #custom
 Ref/
 serviceEnv.js
+build/
 
 # Logs
 logs
