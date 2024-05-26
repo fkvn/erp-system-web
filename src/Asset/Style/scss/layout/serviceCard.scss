@@ -1,0 +1,43 @@
+div.service-card {
+	& div:has(> .service-tag-overlay) {
+		position: relative;
+	}
+
+	& .service-tag-overlay {
+		position: absolute;
+		width: 100%;
+		left: 0%;
+		bottom: 0%;
+		z-index: 800;
+		opacity: "90%";
+		border: 1px solid gainsboro;
+	}
+
+	& .ant-card {
+		max-width: 100%;
+		border-radius: 1rem !important;
+		overflow: hidden;
+		z-index: 500;
+	}
+
+	& .slick-track {
+		height: auto !important;
+	}
+
+	& .ant-carousel ul.slick-dots {
+		margin-right: 1rem;
+	}
+
+	// & .ant-card-body {
+	// 	padding: 0 1.5rem;
+	// }
+}
+
+// // #service-card .ant-card-head {
+// // 	min-height: 2rem !important;
+// // }
+
+// #service-card .ant-card-extra,
+// #service-card .ant-card-head-title {
+// 	padding: 0.5rem;
+// }

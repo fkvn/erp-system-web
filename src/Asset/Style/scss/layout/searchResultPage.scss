@@ -1,0 +1,21 @@
+#search-result-page {
+	& .content *,
+	.header-tag * {
+		font-size: 0.8rem !important;
+	}
+
+	& .header-tag .ant-tag {
+		// padding: 0.33rem 1rem !important;
+		// border-radius: 50px !important;
+		// line-height: 1.2rem;
+		font-size: 0.9rem !important;
+		padding: 0.33rem 1rem !important;
+		border-radius: 50px !important;
+	}
+
+	& .header-tag li {
+		padding: 0.02rem 1rem;
+		border: 1px solid #d9d9d9;
+		border-radius: 50px;
+	}
+}

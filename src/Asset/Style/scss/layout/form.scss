@@ -1,0 +1,476 @@
+.form-header {
+	padding: 24px;
+	background-color: white;
+}
+
+.ant-form {
+	& .ant-form-item:not(:has(.editor)) * {
+		font-size: 1rem;
+	}
+
+	& span.ant-input-affix-wrapper:not(:has(input#phone)),
+	& span.ant-input-textarea-affix-wrapper:not(:has(input#phone)) {
+		padding: 0.3rem 0.3rem;
+		padding-left: 1rem;
+		border-radius: 0.5rem;
+	}
+
+	& span.ant-input-data-count {
+		bottom: -1.65rem;
+	}
+
+	& span.ant-input-affix-wrapper,
+	& span.ant-input-textarea-affix-wrapper,
+	& input,
+	& .ant-input-number,
+	& .ant-radio-button-wrapper {
+		background-color: white;
+		min-height: 2rem;
+	}
+
+	& input {
+		padding: 0.2rem 1rem;
+		border-radius: 0.5rem 0 0 0.5rem;
+	}
+
+	& span.ant-input-group-addon {
+		border-radius: 0.5rem 0 0 0.5rem;
+	}
+
+	& .ant-radio-button-wrapper {
+		border: 1px solid #d9d9d9;
+	}
+
+	& .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled) {
+		border: 1px solid #1677ff;
+	}
+
+	& .ant-upload-wrapper .ant-upload-list {
+		margin: 1rem 0;
+	}
+
+	& .ant-upload-wrapper.ant-upload-picture-card-wrapper {
+		&.w-100 .ant-upload.ant-upload-select {
+			width: 100%;
+			height: 15rem;
+		}
+	}
+
+	&
+		.ant-upload-wrapper.ant-upload-picture-card-wrapper.w-100
+		.ant-upload-list.ant-upload-list-picture-card
+		.ant-upload-list-item-container,
+	.ant-upload-wrapper.ant-upload-picture-card-wrapper.w-100
+		.ant-upload-list.ant-upload-list-picture-card
+		.ant-upload-list-item-thumbnail
+		img {
+		width: 100%;
+		height: 100%;
+		max-height: 30rem;
+		object-fit: cover;
+	}
+}
+
+#user-signin-form {
+	& .ant-form-item * {
+		font-size: 1rem;
+	}
+
+	& span.ant-input-affix-wrapper:not(:has(input#phone)) {
+		padding: 0.3rem 0.3rem;
+		border-radius: 0.5rem;
+	}
+
+	& input {
+		padding: 0.2rem 1rem;
+		border-radius: 0.5rem 0 0 0.5rem;
+	}
+
+	& span.ant-input-group-addon {
+		border-radius: 0.5rem 0 0 0.5rem;
+	}
+}
+
+#user-signup-form {
+	& .ant-form-item * {
+		font-size: 1rem;
+	}
+
+	& span.ant-input-affix-wrapper:not(:has(input#phone)) {
+		padding: 0.3rem 0.3rem;
+		border-radius: 0.5rem;
+	}
+
+	& input {
+		padding: 0.2rem 1rem;
+		border-radius: 0.5rem 0 0 0.5rem;
+	}
+
+	& span.ant-input-group-addon {
+		border-radius: 0.5rem 0 0 0.5rem;
+	}
+}
+
+#business-signup {
+	& .ant-form-item * {
+		font-size: 1rem;
+	}
+
+	& input#name {
+		padding: 0.5rem 1rem;
+		border-radius: 50px;
+	}
+
+	& input#industry {
+		padding: 1.2rem 0.5rem;
+	}
+
+	& .ant-select-selector:has(input#industry) {
+		border-radius: 50px;
+		padding: 1.3rem 1rem;
+	}
+
+	& input#address {
+		padding: 0.28rem 0.5rem;
+	}
+
+	& span.ant-input-affix-wrapper:has(input#address) {
+		border-radius: 50px !important;
+	}
+
+	& input#email,
+	& input#website {
+		padding: 0.6rem 1rem;
+		border-radius: 50px !important;
+	}
+
+	& span.ant-input-group-addon {
+		border-radius: 50px 0 0 50px;
+		padding: 0.55rem 1rem;
+	}
+
+	& input#phone {
+		border-radius: 0 50px 50px 0;
+		padding: 0.55rem 1rem;
+	}
+}
+
+#edit-user-profile-form {
+	& .ant-form-item * {
+		font-size: 1rem;
+	}
+
+	& .ant-form-item-extra {
+		margin-top: 0.5rem;
+	}
+
+	& span.ant-input-affix-wrapper,
+	& input#email,
+	& input#name,
+	& input#username,
+	& input#firstname,
+	& input#lastname,
+	& input#website {
+		padding: 0.5rem 1rem;
+		border-radius: 50px !important;
+	}
+
+	& input#website {
+		min-width: 5rem !important;
+	}
+
+	& input#industry {
+		padding: 1.2rem 0.5rem;
+	}
+
+	& .ant-select-selector:has(input#industry) {
+		border-radius: 50px;
+		padding: 1.3rem 1rem;
+	}
+
+	& input#size {
+		padding: 1.2rem 0.5rem;
+	}
+
+	& .ant-select-selector:has(input#size) {
+		border-radius: 50px;
+		padding: 1.3rem 1rem;
+	}
+
+	& span.ant-input-affix-wrapper:has(input#address) {
+		border-radius: 50px !important;
+	}
+
+	& span.ant-select-selection-placeholder {
+		padding: 0.4rem 1rem;
+	}
+
+	& span.ant-input-group-addon {
+		border-radius: 50px 0 0 50px;
+		padding: 0.55rem 1rem;
+	}
+
+	& input#phone {
+		border-radius: 0 50px 50px 0;
+		padding: 0.55rem 1rem;
+	}
+
+	& textarea#description {
+		padding: 1rem;
+		min-height: 5rem;
+		border-radius: 10px;
+	}
+}
+
+#edit-deal-form,
+#filter-deal-form {
+	& .ant-form-item * {
+		font-size: 1rem;
+	}
+
+	& span.ant-input-affix-wrapper,
+	& input#title,
+	& .ant-picker {
+		padding: 0.5rem 1rem;
+		border-radius: 50px !important;
+	}
+
+	& span.ant-select-selection-placeholder {
+		padding: 0.4rem 1rem;
+	}
+
+	& #category label.ant-radio-wrapper {
+		margin: 0rem 1rem 1rem 0rem;
+	}
+
+	& textarea#description {
+		padding: 1rem;
+		min-height: 5rem;
+		border-radius: 10px;
+	}
+}
+
+#edit-job-form,
+#filter-job-form {
+	& .ant-form-item * {
+		font-size: 1rem;
+	}
+
+	& span.ant-input-affix-wrapper,
+	& input#title,
+	& input#salary,
+	& input#skills,
+	& .ant-picker {
+		padding: 0.5rem 1rem;
+		border-radius: 50px !important;
+	}
+
+	& span.ant-select-selection-placeholder {
+		padding: 0.4rem 1rem;
+	}
+
+	& #experience label.ant-radio-wrapper,
+	& #positions label.ant-checkbox-wrapper {
+		margin: 0rem 1rem 1rem 0rem;
+	}
+
+	& textarea#description {
+		padding: 1rem;
+		min-height: 5rem;
+		border-radius: 10px;
+	}
+}
+
+#edit-housing-form,
+#filter-housing-form {
+	& .ant-form-item * {
+		font-size: 1rem;
+	}
+
+	& span.ant-input-affix-wrapper,
+	& input#title,
+	input#category-Other,
+	input#interior_guest,
+	input#interior_bath,
+	input#interior_parking,
+	input#interior_bed,
+	.ant-picker {
+		padding: 0.5rem 1rem;
+		border-radius: 50px !important;
+	}
+
+	div.ant-input-number-in-form-item:has(
+			input#interior_guest,
+			input#interior_bath,
+			input#interior_parking,
+			input#interior_bed
+		) {
+		border-radius: 50px !important;
+	}
+
+	div.ant-col:has(
+			input#interior_guest,
+			input#interior_bath,
+			input#interior_parking,
+			input#interior_bed
+		) {
+		padding-right: 0.8rem;
+		margin: 0rem 0rem 0.2rem 0rem;
+	}
+
+	& span.ant-select-selection-placeholder {
+		padding: 0.4rem 1rem;
+	}
+
+	& #type label.ant-radio-wrapper,
+	& #amenities label.ant-checkbox-wrapper {
+		margin: 0rem 1rem 1rem 0rem;
+	}
+
+	& #category label.ant-radio-wrapper:not(:last-child) {
+		margin: 0rem 1rem 1rem 0rem;
+	}
+
+	& div.ant-input-number-group-addon {
+		border-radius: 50px 0 0 50px;
+		padding: 0.4rem 1rem;
+	}
+
+	& .ant-input-number-input-wrap {
+		border-radius: 0 50px 50px 0 !important;
+		padding: 0.4rem 0rem;
+	}
+
+	& textarea#description {
+		padding: 1rem;
+		min-height: 5rem;
+		border-radius: 10px;
+	}
+}
+
+#filter-housing-form
+	.ant-form-item-label
+	> label.ant-form-item-required:not(
+		.ant-form-item-required-mark-optional
+	)::before {
+	display: none;
+}
+
+#edit-marketplace-form,
+#filter-marketplace-form {
+	& .ant-form-item * {
+		font-size: 1rem;
+	}
+
+	& span.ant-input-affix-wrapper,
+	input#title,
+	input#category-Other,
+	input#condition-Other,
+	.ant-picker {
+		padding: 0.5rem 1rem;
+		border-radius: 50px !important;
+	}
+
+	& span.ant-select-selection-placeholder {
+		padding: 0.4rem 1rem;
+	}
+
+	& #condition label.ant-radio-wrapper,
+	#category label.ant-radio-wrapper {
+		margin: 0rem 1rem 1rem 0rem;
+	}
+
+	& div.ant-input-number-group-addon {
+		border-radius: 50px 0 0 50px;
+		padding: 0.4rem 1rem;
+	}
+
+	& .ant-input-number-input-wrap {
+		border-radius: 0 50px 50px 0 !important;
+		padding: 0.4rem 0rem;
+	}
+
+	& textarea#description {
+		padding: 1rem;
+		min-height: 5rem;
+		border-radius: 10px;
+	}
+}
+
+#filter-business-form {
+	& #industry label.ant-radio-wrapper {
+		margin: 0rem 1rem 1rem 0rem;
+	}
+}
+
+#forgot-password-form {
+	& .ant-form-item * {
+		font-size: 1rem;
+	}
+
+	& span.ant-input-affix-wrapper:not(:has(input#phone)) {
+		padding: 0.3rem 0.3rem;
+		border-radius: 0.5rem;
+	}
+
+	& input {
+		padding: 0.2rem 1rem;
+		border-radius: 0.5rem 0 0 0.5rem;
+	}
+
+	& span.ant-input-group-addon {
+		border-radius: 0.5rem 0 0 0.5rem;
+	}
+}
+
+#my-profile-form {
+	& .ant-form-item * {
+		font-size: 1rem;
+	}
+
+	& span.ant-input-affix-wrapper:not(:has(input#phone)) {
+		padding: 0.2rem 0.2rem;
+		border-radius: 0.5rem;
+	}
+
+	& span.ant-input-affix-wrapper,
+	& input,
+	& .ant-input-number {
+		background-color: #f3f6fa;
+	}
+
+	& input {
+		padding: 0.2rem 1rem;
+		border-radius: 0.5rem 0 0 0.5rem;
+	}
+
+	& span.ant-input-group-addon {
+		border-radius: 0.5rem 0 0 0.5rem;
+	}
+}
+
+#my-password-form {
+	& .ant-form-item * {
+		font-size: 1rem;
+	}
+
+	& span.ant-input-affix-wrapper:not(:has(input#phone)) {
+		padding: 0.2rem 0.2rem;
+		border-radius: 0.5rem;
+	}
+
+	& span.ant-input-affix-wrapper,
+	& input,
+	& .ant-input-number {
+		background-color: #f3f6fa;
+	}
+
+	& input {
+		padding: 0.2rem 1rem;
+		border-radius: 0.5rem 0 0 0.5rem;
+	}
+
+	& span.ant-input-group-addon {
+		border-radius: 0.5rem 0 0 0.5rem;
+	}
+}

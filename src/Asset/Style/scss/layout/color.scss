@@ -1,0 +1,57 @@
+@use "sass:map";
+@import "../base/global";
+
+$theme-colors: (
+	red1: #e94833,
+	red2: #fff2f0,
+	blue1: #116acc,
+	blue2: #003ca7,
+	orange: #fba704,
+	jobColor: #00965f,
+	housingColor: #fb5123,
+	marketplaceColor: #de2258,
+	grayBorderColor: rgba(102, 102, 102, 0.25),
+	grayColor: #9ca3af,
+	night: #001529,
+	white: #ffffff,
+);
+
+$typies: map-keys($theme-colors);
+
+@mixin color($name, $important: false) {
+	@if $important {
+		color: map.get($theme-colors, $name) !important;
+	} @else {
+		color: map.get($theme-colors, $name);
+	}
+}
+
+@mixin background($name, $important: false) {
+	@if $important {
+		background-color: map.get($theme-colors, $name) !important;
+	} @else {
+		background-color: map.get($theme-colors, $name);
+	}
+}
+
+@each $type in $typies {
+	.c {
+		&-#{$type} {
+			@include color($type);
+
+			&-important {
+				@include color($type, true);
+			}
+		}
+	}
+
+	.bg {
+		&-#{$type} {
+			@include background($type);
+
+			&-important {
+				@include background($type, true);
+			}
+		}
+	}
+}

@@ -1,0 +1,138 @@
+@use "sass:map";
+
+/* Declare variables
+
+Syntax: $variable_name: $variable_value $default_option;
+
+E.g: 
+
+$layout-marginTop: 5rem !default;
+$primaryColor: #116acc;
+
+*/
+
+/* Export the variables for global usage in components
+
+Step 1: Export the variables from this global scss.
+Step 2: Import to the desired compoments
+
+E.g 
+------ _global.scss ------
+:export {
+	primaryColor: $primaryColor;
+}
+
+------ DealBadge.js Component ----
+Import global from "_global.scss"
+
+activeColor = global.primaryColor,
+
+*/
+
+/*  Create CSS code that is to be reused throughout the website 
+
+
+Step 1: Declare the CSS code @mixin function 
+Step 2: Import and Include in another css/scss file
+
+E.g.
+
+------ _global.scss ------- 
+@mixin ellipse() {
+	max-width: 100%;
+	overflow: hidden;
+	display: inline-block;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+----- layout.scss Component -----
+Import "global.scss"
+
+.ant-space-item:has(> div.custom-text-ellipsis) {
+	@include ellipse;
+}
+*/
+
+$default: true !default;
+
+$layout-marginTop: 0 !default;
+$layout-marginBottm: 0 !default;
+$layout-marginLeft: 0 !default;
+$layout-marginRight: 0 !default;
+
+$layout-content-marginTop: 5rem !default;
+
+$xs: 480px !default;
+$sm: 576px !default;
+$md: 768px !default;
+$lg: 992px !default;
+$xl: 1200px !default;
+$xxl: 1600px !default;
+
+@mixin layout-margin($default: true, $top: 0, $bottom: 0, $left: 0, $right: 0) {
+	@if not$default {
+		margin: $top $right $bottm $left;
+	}
+}
+
+@mixin ellipse() {
+	max-width: 100%;
+	overflow: hidden;
+	display: inline-block;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+@mixin flex-center() {
+	display: flex !important;
+	justify-content: center;
+	align-items: center;
+	flex-grow: 0;
+	flex-shrink: 0;
+	flex-basis: content;
+}
+
+@mixin flex-center-left() {
+	display: flex !important;
+	justify-content: left;
+	align-items: center;
+}
+
+@mixin flex-center-right() {
+	display: flex !important;
+	justify-content: right;
+	align-items: center;
+}
+
+// @mixin color-business($important: false) {
+// 	@if $important {
+// 		color: $businessColor !important;
+// 	} @else {
+// 		color: $businessColor;
+// 	}
+// }
+
+// @mixin color-job($important: false) {
+// 	@if $important {
+// 		color: $jobColor !important;
+// 	} @else {
+// 		color: $jobColor;
+// 	}
+// }
+
+// @mixin color-housing($important: false) {
+// 	@if $important {
+// 		color: $housingColor !important;
+// 	} @else {
+// 		color: $housingColor;
+// 	}
+// }
+
+// @mixin color-marketplace($important: false) {
+// 	@if $important {
+// 		color: $marketplaceColor !important;
+// 	} @else {
+// 		color: $marketplaceColor;
+// 	}
+// }

@@ -1,0 +1,10 @@
+/* Laptop L - 1440 */
+@media only screen and (max-width: 1440px) {
+	#signup-otp-verify-formControl {
+		min-width: 25rem !important;
+	}
+
+	#topbar {
+		height: 5rem;
+	}
+}

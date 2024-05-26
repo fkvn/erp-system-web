@@ -1,0 +1,10 @@
+@use "sass:map";
+@import "./color.scss";
+
+@mixin border-default() {
+	border: 0.2px solid map.get($theme-colors, "grayBorderColor");
+}
+
+.border-default {
+	@include border-default();
+}
