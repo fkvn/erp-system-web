@@ -17,17 +17,20 @@ function useAuth() {
 
 	const navigate = useNavigate();
 	const [params] = useSearchParams();
-	const redirectUri = params.get(REDIRECT_URI) || "/";
+	const redirectUri = params.get(REDIRECT_URI) || "";
 	const { pathname } = useLocation();
 
-	const signout = () => {
+	const signout = (redirect = false, customRedirectUri = "") => {
 		localStorage.removeItem(USER);
 		localStorage.removeItem(ACCESS_TOKEN);
+		if (redirect) {
+			window.open(`/${customRedirectUri ?? ""}`, "_self");
+		}
 	};
 
 	const signin = async (
 		authState = {},
-		forward = true,
+		redirect = true,
 		customRedirectUri = ""
 	) => {
 		const { access_token, ...info } = authState;
@@ -38,14 +41,14 @@ function useAuth() {
 		// only store info into the redux, token is kept in localStorage only
 		dispatch(setUser(info));
 
-		return forward
-			? navigate(`${customRedirectUri || redirectUri}`)
+		return redirect
+			? navigate(`/${customRedirectUri || redirectUri}`)
 			: Promise.resolve();
 	};
 
 	const auth = async (
 		throwError = true,
-		forward = true,
+		redirect = true,
 		customRedirectUri = ""
 	) => {
 		const access_token = localStorage.getItem(ACCESS_TOKEN);
@@ -53,16 +56,16 @@ function useAuth() {
 			validateToken(access_token || "") ?? localStorage.getItem(USER) ?? false;
 
 		if (isValidCredential)
-			return forward
-				? navigate(`${customRedirectUri || redirectUri}`)
+			return redirect
+				? navigate(`/${customRedirectUri || redirectUri}`)
 				: Promise.resolve();
 
 		// else
 		signout();
 		if (throwError) errorMessage("invalid_token_msg", 2);
-		if (forward && pathname !== SIGN_IN_PATH) {
+		if (redirect && pathname !== SIGN_IN_PATH) {
 			navigate(
-				`${SIGN_IN_PATH}?${REDIRECT_URI}=${customRedirectUri || redirectUri}`
+				`${SIGN_IN_PATH}?${REDIRECT_URI}=${customRedirectUri ?? redirectUri}`
 			);
 		}
 
@@ -72,13 +75,13 @@ function useAuth() {
 	// /**
 	//  *
 	//  * @param {*} payload  {CHANNEL_PROP, ...payload}
-	//  * @param {*} forward
+	//  * @param {*} redirect
 	//  * @returns
 	//  */
 	// const signup = async (
 	// 	channel = EMAIL_PROP,
 	// 	credentials = {},
-	// 	forward = true
+	// 	redirect = true
 	// ) => {
 	// 	return signupAxios(channel, credentials)
 	// 		.then(() =>
@@ -86,7 +89,7 @@ function useAuth() {
 	// 				signin(
 	// 					SIGNIN_CHANNEL_THAINOW,
 	// 					{ [`${CHANNEL_PROP}`]: channel, ...credentials },
-	// 					forward
+	// 					redirect
 	// 				)
 	// 			)
 	// 		)

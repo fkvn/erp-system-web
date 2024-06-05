@@ -1,4 +1,4 @@
-import { Button, Popconfirm } from "antd";
+import { Button, Popconfirm, Tooltip } from "antd";
 import { Typography } from "antd/lib";
 import { Trans, useTranslation } from "react-i18next";
 
@@ -13,6 +13,7 @@ function SubmitBtnFormControl({
 	loading = false,
 	onClick = () => {},
 	btnProps = {},
+	tooltipTitle = "",
 }) {
 	const { t } = useTranslation();
 	let btnTitle = loading ? t("processing_msg") : title || t("submit_msg");
@@ -42,22 +43,24 @@ function SubmitBtnFormControl({
 			showCancel={false}
 			okText={t("yes_msg")}
 		>
-			<Button
-				type={type}
-				className={`my-2 bg-red1 custom-center ${className}`}
-				style={{
-					fontSize: "1rem",
-					padding: ".7rem 2rem",
-					borderRadius: ".5rem",
-					...style,
-				}}
-				disabled={disabled || loading}
-				loading={loading}
-				onClick={onClick}
-				{...btnProps}
-			>
-				{btnTitle}
-			</Button>
+			<Tooltip title={tooltipTitle}>
+				<Button
+					type={type}
+					className={`my-2 bg-red1 custom-center ${className}`}
+					style={{
+						fontSize: "1rem",
+						padding: ".7rem 2rem",
+						borderRadius: ".5rem",
+						...style,
+					}}
+					disabled={disabled || loading}
+					loading={loading}
+					onClick={onClick}
+					{...btnProps}
+				>
+					{btnTitle}
+				</Button>
+			</Tooltip>
 		</Popconfirm>
 	);
 

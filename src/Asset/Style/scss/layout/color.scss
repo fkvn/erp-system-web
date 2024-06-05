@@ -8,12 +8,13 @@ $theme-colors: (
 	blue2: #003ca7,
 	orange: #fba704,
 	jobColor: #00965f,
-	housingColor: #fb5123,
+	red3: #fb5123,
 	marketplaceColor: #de2258,
 	grayBorderColor: rgba(102, 102, 102, 0.25),
 	grayColor: #9ca3af,
 	night: #001529,
 	white: #ffffff,
+	disable: rgba(0, 0, 0, 0.25),
 );
 
 $typies: map-keys($theme-colors);

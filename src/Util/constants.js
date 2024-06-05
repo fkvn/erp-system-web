@@ -2,6 +2,7 @@ export const REDIRECT_URI = "redirect_uri";
 export const ACCESS_TOKEN = "access_token";
 
 export const USER = "user";
+export const USERS = "users";
 export const USER_AUTHORITIES = "authorities";
 export const USERNAME = "username";
 
@@ -13,3 +14,6 @@ export const USERNAME_OR_EMAIL_FIELD = "usernameOrEmail";
 export const COMPANY_ID = "companyId";
 
 export const SIGN_IN_PATH = "/signin";
+export const ADMIN_PATH = "/admin";
+export const SUPER_ADMIN_PATH = "/super-admin";
+export const USERS_PATH = "/users";

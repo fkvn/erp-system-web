@@ -26,6 +26,10 @@ body {
 	@include ellipse;
 }
 
+.disable-link {
+	pointer-events: none;
+}
+
 ::-webkit-scrollbar {
 	-webkit-appearance: none;
 	-webkit-overflow-scrolling: auto;

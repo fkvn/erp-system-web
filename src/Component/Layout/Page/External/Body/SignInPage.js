@@ -3,15 +3,15 @@ import { useForm } from "antd/es/form/Form";
 import Title from "antd/lib/typography/Title";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { useSignInByPasswordMutation } from "../../../ApiRTKQuery/RTKApi/authApi";
-import { USERNAME_OR_EMAIL_FIELD } from "../../../Util/constants";
-import PasswordFormControl from "../../Form/PasswordFormControl";
-import SubmitBtnFormControl from "../../Form/SubmitBtnFormControl";
-import TermAgreement from "../../Form/TermAgreement";
-import TextFormControl from "../../Form/TextFormControl";
-import useAuth from "../../Hook/AuthHook/useAuth";
-import useMessage from "../../Hook/MessageHook/useMessage";
-import PageHeader from "./Header/Pageheader";
+import { useSignInByPasswordMutation } from "../../../../../ApiRTKQuery/RTKApi/authApi";
+import { USERNAME_OR_EMAIL_FIELD } from "../../../../../Util/constants";
+import PasswordFormControl from "../../../../Form/PasswordFormControl";
+import SubmitBtnFormControl from "../../../../Form/SubmitBtnFormControl";
+import TermAgreement from "../../../../Form/TermAgreement";
+import TextFormControl from "../../../../Form/TextFormControl";
+import useAuth from "../../../../Hook/AuthHook/useAuth";
+import useMessage from "../../../../Hook/MessageHook/useMessage";
+import Header from "../Header";
 
 function SignInPage() {
 	const { t } = useTranslation();
@@ -29,13 +29,11 @@ function SignInPage() {
 	};
 
 	if (isError) {
-		console.log(error);
 		errorMessage(error);
 	}
 
 	useEffect(() => {
 		if (isSuccess) {
-			console.log("success");
 			signin(data);
 		} else {
 			auth(false).catch(() => {});
@@ -62,7 +60,7 @@ function SignInPage() {
 
 	const App = () => (
 		<>
-			<PageHeader />
+			<Header />
 			<Flex
 				justify="center"
 				align="center"

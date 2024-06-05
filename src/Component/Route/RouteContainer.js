@@ -1,16 +1,23 @@
 import { FloatButton } from "antd";
 import { useTranslation } from "react-i18next";
 import { Outlet, RouterProvider, createBrowserRouter } from "react-router-dom";
-import { SIGN_IN_PATH } from "../../Util/constants";
+import {
+	REDIRECT_URI,
+	SIGN_IN_PATH,
+	SUPER_ADMIN_PATH,
+	USERS_PATH,
+} from "../../Util/constants";
 import Auth from "../Auth/Auth";
-import SelectCompanyPage from "../Layout/ExternalLayout/SelectCompanyPage";
-import SignInPage from "../Layout/ExternalLayout/SignInPage";
-import MainLayout from "../Layout/Layout/MainLayout";
+import SelectCompanyPage from "../Layout/Page/External/Body/SelectCompany";
+import SignInPage from "../Layout/Page/External/Body/SignInPage";
+import Home from "../Layout/Page/SuperAdmin/Home";
+import Users from "../Layout/Page/SuperAdmin/Users";
 import NotFound from "../NotFound/NotFound";
 import Oops from "../NotFound/Oops";
 
 function RouteContainer() {
 	const { t } = useTranslation();
+	const pathname = window.location.pathname;
 	// const router = createBrowserRouter(
 	// 	[
 	// 		{
@@ -92,6 +99,26 @@ function RouteContainer() {
 		[
 			{ path: SIGN_IN_PATH, Component: SignInPage },
 			{
+				path: "/super-admin",
+				element: (
+					<Auth>
+						<Home />
+					</Auth>
+				),
+				children: [
+					{
+						path: USERS_PATH.slice(1),
+						element: <Users />,
+						handle: {
+							crumb: () => ({ title: t("user_msg") }),
+						},
+					},
+				],
+				handle: {
+					crumb: () => ({ path: SUPER_ADMIN_PATH, title: t("home_msg") }),
+				},
+			},
+			{
 				path: "/",
 				element: (
 					<Auth>
@@ -103,21 +130,16 @@ function RouteContainer() {
 						id: "index",
 						path: "/",
 						element: <SelectCompanyPage />,
-						handle: {
-							// you can put whatever you want on a route handle
-							// here we use "crumb" and return some elements,
-							// this is what we'll render in the breadcrumbs
-							// for this route
-							crumb: () => {
-								return { path: "/", title: t("home_msg") };
-							},
-						},
-					},
-					{
-						path: "*",
-						element: <MainLayout />,
 					},
 				],
+				handle: {
+					crumb: () => {
+						return {
+							path: `/?${REDIRECT_URI}=${pathname.slice(1)}`,
+							title: t("home_msg"),
+						};
+					},
+				},
 			},
 			{ path: "*", Component: NotFound },
 		].map((v) => {

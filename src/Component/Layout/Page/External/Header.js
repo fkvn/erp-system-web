@@ -3,9 +3,10 @@ import { Button, Divider, Flex, Grid, Image } from "antd";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { medias } from "../../../../Asset/Asset";
 import { REDIRECT_URI } from "../../../../Util/constants";
+import useMessage from "../../../Hook/MessageHook/useMessage";
 import SwitchLanguage from "../../../Locale/SwitchLanguage";
 
-function PageHeader({
+function Header({
 	onBeforeClose = () => Promise.resolve(),
 	extra = <></>,
 	closeBtn = true,
@@ -15,6 +16,7 @@ function PageHeader({
 	const navigate = useNavigate();
 	const [params] = useSearchParams();
 	const redirectUri = params.get(REDIRECT_URI) || "/";
+	const { destroyMessage } = useMessage();
 
 	const App = () => (
 		<>
@@ -47,7 +49,10 @@ function PageHeader({
 							size="medium"
 							icon={<CloseOutlined className="text-white" />}
 							onClick={() =>
-								onBeforeClose().then(() => navigate(`${redirectUri}`))
+								onBeforeClose().then(() => {
+									destroyMessage();
+									navigate(`${redirectUri}`);
+								})
 							}
 							style={{ fontSize: "1rem" }}
 						/>
@@ -60,4 +65,4 @@ function PageHeader({
 	return <App />;
 }
 
-export default PageHeader;
+export default Header;
