@@ -4,7 +4,7 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { medias } from "../../../../Asset/Asset";
 import { REDIRECT_URI } from "../../../../Util/constants";
 import useMessage from "../../../Hook/MessageHook/useMessage";
-import SwitchLanguage from "../../../Locale/SwitchLanguage";
+import SwitchLanguage from "../../../Lang/SwitchLanguage";
 
 function Header({
 	onBeforeClose = () => Promise.resolve(),

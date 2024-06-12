@@ -4,7 +4,7 @@ import { Provider } from "react-redux";
 import "../src/Asset/Style/style.scss";
 import store from "./ApiRTKQuery/store";
 import App from "./App";
-import "./Component/Locale/i18n";
+import "./Component/Lang/i18n";
 import reportWebVitals from "./reportWebVitals";
 
 const rootElement = document.getElementById("root");

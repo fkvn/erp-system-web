@@ -3,7 +3,9 @@ import LanguageDetector from "i18next-browser-languagedetector";
 import HttpBackend from "i18next-http-backend";
 import moment from "moment";
 import { initReactI18next } from "react-i18next";
-import { i18ApiKey, supportedLngs } from "../../serviceEnv";
+import { lngConfig } from "../../serviceEnv";
+
+const { i18ApiKey, supportedLngs } = lngConfig;
 
 const apiKey = i18ApiKey ?? "";
 const loadPath = `https://api.i18nexus.com/project_resources/translations/{{lng}}/{{ns}}.json?api_key=${apiKey}`;

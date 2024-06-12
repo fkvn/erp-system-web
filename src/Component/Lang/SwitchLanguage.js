@@ -1,7 +1,7 @@
 import { GlobalOutlined } from "@ant-design/icons";
 import { Grid, Select } from "antd";
 import i18next from "i18next";
-import { supportedLngs } from "../../serviceEnv";
+import { lngConfig } from "../../serviceEnv";
 
 function SwitchLanguage({
 	style = {
@@ -10,11 +10,12 @@ function SwitchLanguage({
 		color: "black",
 	},
 	bordered = false,
-	options = supportedLngs,
+	options = [],
 	selectionProps = {},
 }) {
 	const { useBreakpoint } = Grid;
 	const screens = useBreakpoint();
+	const { supportedLngs } = lngConfig;
 
 	const App = () => (
 		<Select
