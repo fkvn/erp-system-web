@@ -34,7 +34,7 @@
 		"@tiptap/starter-kit": "^2.2.1",
 		"@tiptap/suggestion": "^2.2.2",
 		"ant-design": "^1.0.0",
-		"antd": "^5.10.0",
+		"antd": "^5.15.0",
 		"antd-img-crop": "^4.2.3",
 		"axios": "^0.27.2",
 		"bootstrap": "^5.1.3",

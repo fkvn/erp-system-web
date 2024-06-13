@@ -3,9 +3,9 @@ import Title from "antd/lib/typography/Title";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { USER } from "../../../../../Util/constants";
-import useAuth from "../../../../Hook/AuthHook/useAuth";
-import NoResult from "../../../../NotFound/NoResult";
+import { SUPER_ADMIN_PATH, USER } from "../../../../Util/constants";
+import useAuth from "../../../Hook/AuthHook/useAuth";
+import NoResult from "../../../NotFound/NoResult";
 import Header from "../Header";
 
 function SelectCompany() {
@@ -57,7 +57,7 @@ function SelectCompany() {
 	// );
 
 	const superAdminBtn = isUserSuperAdmin && (
-		<Link className="text-center w-100" to={`admin`}>
+		<Link className="text-center w-100" to={`${SUPER_ADMIN_PATH}`}>
 			{t("admin_portal_msg")}
 		</Link>
 	);

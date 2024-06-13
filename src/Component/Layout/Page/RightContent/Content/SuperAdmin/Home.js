@@ -2,16 +2,16 @@ import { Skeleton } from "antd";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
-import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
 	SUPER_ADMIN_PATH,
 	USER,
 	USERS,
 	USERS_PATH,
-} from "../../../../Util/constants";
-import useMessage from "../../../Hook/MessageHook/useMessage";
-import FixedSiderLayout from "../../FixedSiderLayout";
-import Header from "../External/Header";
+} from "../../../../../../Util/constants";
+import useMessage from "../../../../../Hook/MessageHook/useMessage";
+import Header from "../../../../External/Header";
+import Layout from "../../../PageLayout";
 
 function Home() {
 	const { t } = useTranslation();
@@ -23,11 +23,11 @@ function Home() {
 
 	useEffect(() => {
 		if (!isUserSuperAdmin) errorMessage(t("access_forbidden_msg"), 0);
-		// default
-		if (pathname === SUPER_ADMIN_PATH) navigate(USERS_PATH.slice(1));
+		// default url to the user's management page
+		else if (pathname === SUPER_ADMIN_PATH) navigate(USERS_PATH.slice(1));
 	}, [isUserSuperAdmin, errorMessage, t, navigate, pathname]);
 
-	const sideMenuItems = [
+	const siderItems = [
 		{
 			key: USERS,
 			label: t("dashboard_msg", {
@@ -36,20 +36,15 @@ function Home() {
 		},
 	];
 
-	const sideMenuKeys = [
+	const siderItemSelectedKeys = [
 		{
 			[`${SUPER_ADMIN_PATH}${USERS_PATH}`]: USERS,
 		}[pathname],
 	];
 
-	const sider = {
-		items: sideMenuItems,
-		itemSelectedKeys: sideMenuKeys ?? [],
-	};
-
 	const App = () =>
 		isUserSuperAdmin ? (
-			<FixedSiderLayout sider={sider} content={<Outlet />} />
+			<Layout items={siderItems} itemSelectedKeys={siderItemSelectedKeys} />
 		) : (
 			<>
 				<Header />

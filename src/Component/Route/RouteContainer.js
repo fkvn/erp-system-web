@@ -8,10 +8,10 @@ import {
 	USERS_PATH,
 } from "../../Util/constants";
 import Auth from "../Auth/Auth";
-import SelectCompanyPage from "../Layout/Page/External/Body/SelectCompany";
-import SignInPage from "../Layout/Page/External/Body/SignInPage";
-import Home from "../Layout/Page/SuperAdmin/Home";
-import Users from "../Layout/Page/SuperAdmin/Users";
+import SelectCompanyPage from "../Layout/External/Body/SelectCompany";
+import SignInPage from "../Layout/External/Body/SignInPage";
+import Home from "../Layout/Page/RightContent/Content/SuperAdmin/Home";
+import Users from "../Layout/Page/RightContent/Content/SuperAdmin/Users";
 import NotFound from "../NotFound/NotFound";
 import Oops from "../NotFound/Oops";
 
