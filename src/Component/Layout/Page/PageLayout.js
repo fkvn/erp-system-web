@@ -41,7 +41,7 @@ function PageLayout({
 						: { icon: <UserOutlined /> })}
 				/>
 				<Tooltip title={userUsername} placement="bottomLeft">
-					<Typography.Text className="c-white-important m-0 w-100" ellipsis>
+					<Typography.Text className="c-white1-important m-0 w-100" ellipsis>
 						{userUsername}
 					</Typography.Text>
 				</Tooltip>

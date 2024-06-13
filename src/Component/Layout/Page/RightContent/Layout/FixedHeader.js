@@ -41,7 +41,7 @@ function FixedHeader({ message = "", extra = <></> }) {
 			}}
 		>
 			<Flex
-				className="w-100 c-orange m-0"
+				className="w-100 c-orange1 m-0"
 				justify="space-between"
 				align="center"
 			>
