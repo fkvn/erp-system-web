@@ -17,3 +17,6 @@ export const SIGN_IN_PATH = "/signin";
 export const ADMIN_PATH = "/admin";
 export const SUPER_ADMIN_PATH = "/super-admin";
 export const USERS_PATH = "/users";
+
+export const VIEW_USERS_TABLE = "viewUsersTable";
+export const FIXED_COLUMN_INX = "fixedColumnIdx";

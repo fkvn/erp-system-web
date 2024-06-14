@@ -2,91 +2,25 @@ import { Flex, Table } from "antd";
 import Title from "antd/lib/typography/Title";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-const columns = [
-	{
-		title: "Full Name",
-		width: 100,
-		dataIndex: "name",
-		key: "name",
-		fixed: "left",
-	},
-	{
-		title: "Age",
-		width: 100,
-		dataIndex: "age",
-		key: "age",
-		fixed: "left",
-		sorter: true,
-	},
-	{
-		title: "Column 1",
-		dataIndex: "address",
-		key: "1",
-	},
-	{
-		title: "Column 2",
-		dataIndex: "address",
-		key: "2",
-	},
-	{
-		title: "Column 3",
-		dataIndex: "address",
-		key: "3",
-	},
-	{
-		title: "Column 4",
-		dataIndex: "address",
-		key: "4",
-	},
-	{
-		title: "Column 5",
-		dataIndex: "address",
-		key: "5",
-	},
-	{
-		title: "Column 6",
-		dataIndex: "address",
-		key: "6",
-	},
-	{
-		title: "Column 7",
-		dataIndex: "address",
-		key: "7",
-	},
-	{
-		title: "Column 8",
-		dataIndex: "address",
-		key: "8",
-	},
-];
-const data = [
-	{
-		key: "1",
-		name: "John Brown",
-		age: 32,
-		address: "New York Park",
-	},
-	{
-		key: "2",
-		name: "Jim Green",
-		age: 40,
-		address: "London Park",
-	},
-	{
-		key: "3",
-		name: "Jim Green",
-		age: 40,
-		address: "London Park",
-	},
-];
+import { FIXED_COLUMN_INX } from "../../Util/constants";
+import { testUsers } from "../../Util/testData";
+import ResizableTitle from "./ResizableTitle";
 
 function ViewTable({
-	scrollX = 2000,
+	id = "",
+	columns,
+	data,
+	scrollX = 1000,
 	scrollY = 400,
 	pageSize = 10,
 	currentPage = 1,
+	footer = () => <></>,
 }) {
 	const { t } = useTranslation();
+	const [fixedColumnIdx, setFixedColumnIdx] = useState(
+		(localStorage.getItem(id) ?? {})?.[`$${FIXED_COLUMN_INX}`] ?? [1, 4]
+	);
+
 	const [tableParams, setTableParams] = useState({
 		pagination: {
 			current: currentPage,
@@ -99,6 +33,35 @@ function ViewTable({
 		},
 	});
 
+	const [tableColumns, setTableColumns] = useState(
+		columns ?? testUsers.columns ?? []
+	);
+
+	const [tableData, setTableData] = useState(data ?? testUsers.data);
+
+	const handleResize =
+		(index) =>
+		(_, { size }) => {
+			const newColumns = [...tableColumns];
+			newColumns[index] = {
+				...newColumns[index],
+				width: size.width,
+			};
+			setTableColumns(newColumns);
+		};
+
+	const transformedColumns = tableColumns.map((col, index) => ({
+		...col,
+		width: col.width ?? 200,
+		// set fixed column
+		fixed: fixedColumnIdx.includes(index) ? "left" : undefined,
+		// enable resize header
+		onHeaderCell: (column) => ({
+			width: column.width,
+			onResize: handleResize(index),
+		}),
+	}));
+
 	const TbHeader = () => (
 		<Flex
 			className="w-100"
@@ -110,26 +73,29 @@ function ViewTable({
 		</Flex>
 	);
 
-	const App = () => (
-		<Flex vertical className="w-100">
-			<Table
-				virtual
-				title={TbHeader}
-				columns={columns}
-				scroll={{
-					x: scrollX,
-					y: scrollY,
-				}}
-				style={{ zIndex: 0 }}
-				size="large"
-				rowKey={(record) => record.key}
-				dataSource={data ?? []}
-				pagination={tableParams.pagination}
-				footer={() => "Footer"}
-			/>
-		</Flex>
+	return (
+		<Table
+			className="w-100"
+			bordered
+			virtual
+			title={TbHeader}
+			components={{
+				header: {
+					cell: ResizableTitle,
+				},
+			}}
+			scroll={{
+				x: scrollX,
+				y: scrollY,
+			}}
+			columns={transformedColumns}
+			dataSource={tableData}
+			style={{ zIndex: 0 }}
+			size="large"
+			rowKey={(record) => record.key}
+			pagination={tableParams.pagination}
+			footer={footer}
+		/>
 	);
-	return <App />;
 }
-
 export default ViewTable;
