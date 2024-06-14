@@ -7,7 +7,7 @@ import { testUsers } from "../../Util/testData";
 import ResizableTitle from "./ResizableTitle";
 
 function ViewTable({
-	id = "",
+	id,
 	columns,
 	data,
 	scrollX = 1000,
@@ -18,7 +18,7 @@ function ViewTable({
 }) {
 	const { t } = useTranslation();
 	const [fixedColumnIdx, setFixedColumnIdx] = useState(
-		(localStorage.getItem(id) ?? {})?.[`$${FIXED_COLUMN_INX}`] ?? [1, 4]
+		(localStorage.getItem(id) ?? {})?.[`$${FIXED_COLUMN_INX}`] ?? []
 	);
 
 	const [tableParams, setTableParams] = useState({
@@ -75,6 +75,7 @@ function ViewTable({
 
 	return (
 		<Table
+			id={id}
 			className="w-100"
 			bordered
 			virtual
