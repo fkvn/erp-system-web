@@ -80,15 +80,20 @@ const data = [
 	},
 ];
 
-function ViewTable({ tbHeight = 500 }) {
+function ViewTable({
+	scrollX = 2000,
+	scrollY = 400,
+	pageSize = 10,
+	currentPage = 1,
+}) {
 	const { t } = useTranslation();
 	const [tableParams, setTableParams] = useState({
 		pagination: {
-			current: 1,
-			pageSize: 10,
+			current: currentPage,
+			pageSize: pageSize,
 			showTotal: (total, range) =>
 				t("pagination_item_count_msg", {
-					value: `${range[0]}-${range[1]}`,
+					value: `${range[0]} - ${range[1]}`,
 					total: total,
 				}),
 		},
@@ -109,12 +114,11 @@ function ViewTable({ tbHeight = 500 }) {
 		<Flex vertical className="w-100">
 			<Table
 				virtual
-				// ref={tblRef}
 				title={TbHeader}
 				columns={columns}
 				scroll={{
-					x: 2000,
-					y: 400,
+					x: scrollX,
+					y: scrollY,
 				}}
 				style={{ zIndex: 0 }}
 				size="large"
