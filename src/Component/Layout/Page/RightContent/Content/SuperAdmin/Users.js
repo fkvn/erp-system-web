@@ -1,5 +1,5 @@
 import { Flex } from "antd";
-import ViewTable from "../../../../../Table/ViewTable";
+import UserViewTable from "../../../../../Table/UserViewTable";
 import FixedFooter from "../../Layout/FixedFooter";
 import FixedHeader from "../../Layout/FixedHeader";
 import MainContent from "../../Layout/MainContent";
@@ -9,7 +9,7 @@ function Users() {
 		<>
 			<FixedHeader />
 			<MainContent>
-				<Flex className="w-100">{<ViewTable />}</Flex>
+				<Flex className="w-100">{<UserViewTable />}</Flex>
 			</MainContent>
 			<FixedFooter />
 		</>

@@ -11,7 +11,7 @@ import {
 } from "../../../../../../Util/constants";
 import useMessage from "../../../../../Hook/MessageHook/useMessage";
 import Header from "../../../../External/Header";
-import Layout from "../../../PageLayout";
+import PageLayout from "../../../PageLayout";
 
 function Home() {
 	const { t } = useTranslation();
@@ -44,7 +44,7 @@ function Home() {
 
 	const App = () =>
 		isUserSuperAdmin ? (
-			<Layout items={siderItems} itemSelectedKeys={siderItemSelectedKeys} />
+			<PageLayout items={siderItems} itemSelectedKeys={siderItemSelectedKeys} />
 		) : (
 			<>
 				<Header />

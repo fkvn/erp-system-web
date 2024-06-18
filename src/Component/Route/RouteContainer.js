@@ -99,7 +99,7 @@ function RouteContainer() {
 		[
 			{ path: SIGN_IN_PATH, Component: SignInPage },
 			{
-				path: "/super-admin",
+				path: SUPER_ADMIN_PATH,
 				element: (
 					<Auth>
 						<Home />

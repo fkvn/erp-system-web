@@ -19,4 +19,5 @@ export const SUPER_ADMIN_PATH = "/super-admin";
 export const USERS_PATH = "/users";
 
 export const VIEW_USERS_TABLE = "viewUsersTable";
-export const FIXED_COLUMN_INX = "fixedColumnIdx";
+export const FIXED_COLUMN_INDEXES = "fixedColumnIndexes";
+export const HIDDEN_COLUMN_INDEXES = "hiddenColumnIndexes";
