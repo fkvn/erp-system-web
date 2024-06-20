@@ -6,7 +6,7 @@ function Auth({
 	throwError = true,
 	customRedirectUri = "",
 	children,
-	redirect = false,
+	redirect = true,
 }) {
 	const [authorized, setAuthorized] = useState(false);
 	const { auth } = useAuth();
@@ -18,7 +18,9 @@ function Auth({
 				.then(() => {
 					setAuthorized(true);
 				})
-				.catch(() => {});
+				.catch(() => {
+					console.log("error");
+				});
 		}
 	});
 

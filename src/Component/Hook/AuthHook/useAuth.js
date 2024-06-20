@@ -55,10 +55,7 @@ function useAuth() {
 		const isValidCredential =
 			validateToken(access_token || "") ?? localStorage.getItem(USER) ?? false;
 
-		if (isValidCredential)
-			return redirect
-				? navigate(`/${customRedirectUri || redirectUri}`)
-				: Promise.resolve();
+		if (isValidCredential) return Promise.resolve();
 
 		// else
 		signout();

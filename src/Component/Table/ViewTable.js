@@ -1,3 +1,4 @@
+import { RiEqualizer2Line, RiFilter2Line } from "@remixicon/react";
 import { Button, Flex, Form, Modal, Skeleton, Table } from "antd";
 import Title from "antd/lib/typography/Title";
 import React, { useEffect, useState } from "react";
@@ -25,10 +26,12 @@ function ViewTable({
 }) {
 	const { t } = useTranslation();
 	const [fixedColumnIdx, setFixedColumnIdx] = useState(
-		(localStorage.getItem(id) ?? {})?.[`$${FIXED_COLUMN_INDEXES}`] ?? []
+		JSON.parse(localStorage.getItem(id) ?? "{}")[`${FIXED_COLUMN_INDEXES}`] ??
+			[]
 	);
 	const [hiddenColumnIdx, setHiddenColumnIdx] = useState(
-		(localStorage.getItem(id) ?? {})?.[`$${HIDDEN_COLUMN_INDEXES}`] ?? []
+		JSON.parse(localStorage.getItem(id) ?? "{}")[`${HIDDEN_COLUMN_INDEXES}`] ??
+			[]
 	);
 
 	const navigate = useNavigate();
@@ -37,7 +40,9 @@ function ViewTable({
 	const page = searchParams.get("page") || currentPage || 1;
 	const limit = searchParams.get("limit") || pageSize || 10;
 	const filterParams = Object.fromEntries(
-		[...searchParams].filter(([key]) => key !== "page" && key !== "limit")
+		[...searchParams].filter(
+			([key]) => !["page", "limit", "sortBy", "sortByOrder"].includes(key)
+		)
 	);
 
 	const [tableParams, setTableParams] = useState({
@@ -60,7 +65,7 @@ function ViewTable({
 	const [tableData, setTableData] = useState(data ?? []); // Initial data
 
 	useEffect(() => {
-		if (tableData.length > 0) {
+		if (tableData?.length > 0) {
 			// Generate columns from data if not already present
 			const generatedColumns = Object.keys(tableData[0]).map((key) => ({
 				title: key
@@ -106,21 +111,54 @@ function ViewTable({
 			style={{
 				minHeight: "2rem",
 			}}
+			justify="space-between"
 		>
 			<Title level={4}>User List</Title>
-			<Button type="primary" onClick={() => setIsModalVisible(true)}>
-				Filter
-			</Button>
-			<Button type="primary" onClick={() => setIsSettingModalVisible(true)}>
-				Setting
-			</Button>
+			<Flex gap={0}>
+				<Button type="primary" onClick={() => setIsModalVisible(true)}>
+					<RiFilter2Line />
+				</Button>
+				<Button type="link" onClick={() => setIsSettingModalVisible(true)}>
+					<RiEqualizer2Line />
+				</Button>
+			</Flex>
 		</Flex>
 	);
 
 	const [isModalVisible, setIsModalVisible] = useState(false);
 	const [isSettingModalVisible, setIsSettingModalVisible] = useState(false);
 
+	const setDefaultFilterFormFields = () => {
+		const updatedFilterParams = Object.keys(filterParams).reduce(
+			(r, k) => ({
+				...r,
+				[k]: filterParams[k]?.includes(",")
+					? filterParams[k].split(",")
+					: filterParams[k],
+			}),
+			[]
+		);
+
+		// Object.fromEntries(
+		// 	Object.entries(filterParams).map(([key, value]) => {
+		// 		console.log(key, " - " + value);
+		// 		console.log(value?.includes(",") ? value.split(",") : value);
+		// 		console.log({
+		// 			[key]: value?.includes(",") ? value.split(",") : value,
+		// 		});
+		// 		return {
+		// 			[key]:value,
+		// 		};
+		// 	})
+		// );
+		console.log(filterParams);
+		console.log(updatedFilterParams);
+
+		filterForm.setFieldsValue(updatedFilterParams);
+	};
+
 	useEffect(() => {
+		setDefaultFilterFormFields();
 		fetchTableData();
 	}, []);
 
@@ -180,6 +218,15 @@ function ViewTable({
 		});
 		queryParams.append("page", pagination.current);
 		queryParams.append("limit", pagination.pageSize);
+
+		// Update localStorage with fixed and hidden columns
+		localStorage.setItem(
+			id,
+			JSON.stringify({
+				[`${FIXED_COLUMN_INDEXES}`]: fixedColumnIdx,
+				[`${HIDDEN_COLUMN_INDEXES}`]: hiddenColumnIdx,
+			})
+		);
 
 		navigate(`${pathname}?${queryParams.toString()}`);
 		setIsModalVisible(false);
@@ -261,8 +308,10 @@ function ViewTable({
 					onChange={handleTableChange}
 				/>
 			)}
+
+			{/* Setting Modal */}
 			<Modal
-				title="Filter"
+				title="Table Setting"
 				open={isModalVisible}
 				onOk={handleModalOk}
 				onCancel={handleModalCancel}
@@ -279,46 +328,33 @@ function ViewTable({
 						: []),
 				]}
 			>
-				<Form layout="vertical">{filterChildren ?? <NoResult />}</Form>
-			</Modal>
-
-			{/* Setting Modal */}
-			<Modal
-				title="Column Settings"
-				open={isSettingModalVisible}
-				onOk={handleSettingModalOk}
-				onCancel={handleSettingModalCancel}
-				footer={[
-					<Button key="back" onClick={handleSettingModalCancel}>
-						Cancel
-					</Button>,
-					<Button key="submit" type="primary" onClick={handleSettingModalOk}>
-						Apply
-					</Button>,
-				]}
-			>
-				<Form layout="vertical">
-					{tableColumns.map((col, index) => (
-						<Form.Item
-							key={index}
-							label={col.title}
-							className="d-flex align-items-center"
-						>
-							<Button
-								type="primary"
-								onClick={() => handleFixedColumnChange(index)}
+				<Flex vertical>
+					{/* Filter form */}
+					{filterChildren ?? <NoResult />}
+					{/* Fixed and Hidden setting */}
+					<Form layout="vertical">
+						{tableColumns.map((col, index) => (
+							<Form.Item
+								key={index}
+								label={col.title}
+								className="d-flex align-items-center"
 							>
-								{fixedColumnIdx.includes(index) ? "Unfix" : "Fix"}
-							</Button>
-							<Button
-								type="primary"
-								onClick={() => handleHiddenColumnChange(index)}
-							>
-								{hiddenColumnIdx.includes(index) ? "Show" : "Hide"}
-							</Button>
-						</Form.Item>
-					))}
-				</Form>
+								<Button
+									type="primary"
+									onClick={() => handleFixedColumnChange(index)}
+								>
+									{fixedColumnIdx.includes(index) ? "Unfix" : "Fix"}
+								</Button>
+								<Button
+									type="primary"
+									onClick={() => handleHiddenColumnChange(index)}
+								>
+									{hiddenColumnIdx.includes(index) ? "Show" : "Hide"}
+								</Button>
+							</Form.Item>
+						))}
+					</Form>
+				</Flex>
 			</Modal>
 		</>
 	);
