@@ -22,7 +22,7 @@ function ViewTable({
 	error = "",
 	scrollX = 1000,
 	scrollY = 400,
-	pageSize = 10,
+	pageSize = 1,
 	currentPage = 1,
 	rowKey = (record) => record?.id || "",
 	footer = () => <></>,
@@ -45,7 +45,7 @@ function ViewTable({
 			[]
 	);
 	const { fetchResult: tableData = [], totalCount = 1 } = data;
-	const [searchParams, setSearchParams] = useSearchParams();
+	const [searchParams] = useSearchParams();
 	const page = searchParams.get("page") || currentPage || 1;
 	const limit = searchParams.get("limit") || pageSize || 10;
 	const filterParams = Object.fromEntries(
@@ -56,6 +56,9 @@ function ViewTable({
 
 	const [tableParams, setTableParams] = useState({
 		pagination: {
+			pageSizeOptions: [5, 10, 20, 50, 100],
+			showQuickJumper: true,
+			showSizeChanger: true,
 			current: parseInt(page),
 			pageSize: parseInt(limit),
 			showTotal: (total, range) =>
@@ -188,15 +191,24 @@ function ViewTable({
 		fetchData(queryParams);
 	};
 
-	const handleTableChange = (pagination) => {
-		setTableParams({
-			...tableParams,
-			pagination: {
-				...tableParams.pagination,
-				current: pagination.current,
-				pageSize: pagination.pageSize,
-			},
-		});
+	const handleTableChange = (pagination, _, sorter) => {
+		console.log(sorter);
+
+		const queryParams = new URLSearchParams();
+
+		queryParams.append("page", pagination.current);
+		queryParams.append("limit", pagination.pageSize);
+
+		navigate(`${pathname}?${queryParams.toString()}`);
+
+		// setTableParams({
+		// 	...tableParams,
+		// 	pagination: {
+		// 		...tableParams.pagination,
+		// 		current: pagination.current,
+		// 		pageSize: pagination.pageSize,
+		// 	},
+		// });
 	};
 
 	const [isModalVisible, setIsModalVisible] = useState(false);
