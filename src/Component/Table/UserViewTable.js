@@ -84,7 +84,7 @@ function UserViewTable() {
 		<Form
 			form={filterForm}
 			style={{
-				marginRight: "2rem",
+				margin: "1.5rem 1rem 2rem 0",
 			}}
 			requiredMark
 		>
@@ -97,21 +97,10 @@ function UserViewTable() {
 					title: s?.replace("_", " "),
 				}))}
 				selectProps={{
-					className: "mx-4",
+					className: "mx-4 w-100 ",
 					onDropdownVisibleChange: () => setFetchUserStatus(true),
 				}}
 			/>
-			{/* <Form.Item label="Status" name={"status"}>
-				<Select
-					mode="multiple" // Allow multiple selections
-					placeholder="Select Status"
-					className="mx-4 "
-				>
-					<Select.Option value="ACTIVE">ACTIVE</Select.Option>
-					<Select.Option value="INACTIVE">INACTIVE</Select.Option>
-					
-				</Select>
-			</Form.Item> */}
 		</Form>
 	);
 

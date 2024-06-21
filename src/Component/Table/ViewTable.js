@@ -129,13 +129,17 @@ function ViewTable({
 					type={`${isFilterOrSortingOn() ? "primary" : "link"}`}
 					onClick={() => setIsModalVisible(true)}
 				>
-					<RiFilter2Line />
+					<RiFilter2Line />{" "}
+					{Object.keys(filterParams)?.length > 0
+						? Object.keys(filterParams)?.length
+						: ""}{" "}
+					Filter
 				</Button>
 				<Button
 					type={`${isColumnSettingOn() ? "primary" : "link"}`}
 					onClick={() => setIsSettingModalVisible(true)}
 				>
-					<RiEqualizer2Line />
+					<RiEqualizer2Line /> Columns
 				</Button>
 			</Flex>
 		</Flex>
@@ -304,7 +308,20 @@ function ViewTable({
 
 			{/* Filter & Sorting Modal */}
 			<Modal
-				title="Filter & Sorting"
+				title={
+					<Flex gap={10}>
+						Filter{" "}
+						<Button
+							type="link"
+							className="m-0 p-0"
+							onClick={() => filterForm?.resetFields()}
+						>
+							<span style={{ fontSize: ".8rem", paddingBottom: ".2rem" }}>
+								Clear Filter
+							</span>
+						</Button>
+					</Flex>
+				}
 				open={isModalVisible}
 				onOk={handleModalOk}
 				onCancel={handleModalCancel}
@@ -323,9 +340,7 @@ function ViewTable({
 				loading={isLoading}
 			>
 				<Divider className="m-0" />
-				<Flex vertical className="py-4 w-100">
-					{filterChildren ?? <NoResult />}
-				</Flex>
+				{filterChildren ?? <NoResult />}
 			</Modal>
 
 			{/* Setting Modal */}
