@@ -40,6 +40,9 @@ function ViewTable({
 			defaultFixedColumnIdx ||
 			[]
 	);
+
+	console.log(JSON.parse(localStorage.getItem(id) ?? "{}"));
+
 	const [hiddenColumnIdx, setHiddenColumnIdx] = useState(
 		JSON.parse(localStorage.getItem(id) ?? "{}")[`${HIDDEN_COLUMN_INDEXES}`] ??
 			[]
@@ -248,37 +251,25 @@ function ViewTable({
 
 	const [isSettingModalVisible, setIsSettingModalVisible] = useState(false);
 
-	const handleSettingModalOk = () => {
-		// Update localStorage with fixed and hidden columns
-		localStorage.setItem(
-			id,
-			JSON.stringify({
-				[`$${FIXED_COLUMN_INDEXES}`]: fixedColumnIdx,
-				[`$${HIDDEN_COLUMN_INDEXES}`]: hiddenColumnIdx,
-			})
-		);
-		// Update the tableColumns based on fixed and hidden columns
-		setTableColumns(
-			tableColumns.map((col, index) => ({
-				...col,
-				fixed: fixedColumnIdx.includes(index) ? "left" : undefined,
-				hidden: hiddenColumnIdx.includes(index),
-			}))
-		);
-		setIsSettingModalVisible(false);
-	};
-
 	const handleSettingModalCancel = () => {
 		setIsSettingModalVisible(false);
 	};
 
 	const handleFixedColumnChange = (index) => {
+		const updatedFixedColumnIdx = fixedColumnIdx.includes(index)
+			? fixedColumnIdx.filter((i) => i !== index)
+			: [...fixedColumnIdx, index];
+
 		// Toggle fixed column index
-		if (fixedColumnIdx.includes(index)) {
-			setFixedColumnIdx(fixedColumnIdx.filter((i) => i !== index));
-		} else {
-			setFixedColumnIdx([...fixedColumnIdx, index]);
-		}
+		setFixedColumnIdx(updatedFixedColumnIdx);
+
+		// update local
+		localStorage.setItem(
+			id,
+			JSON.stringify({
+				[`${FIXED_COLUMN_INDEXES}`]: updatedFixedColumnIdx,
+			})
+		);
 	};
 
 	const handleHiddenColumnChange = (index) => {
@@ -288,6 +279,13 @@ function ViewTable({
 		} else {
 			setHiddenColumnIdx([...hiddenColumnIdx, index]);
 		}
+
+		localStorage.setItem(
+			id,
+			JSON.stringify({
+				[`${FIXED_COLUMN_INDEXES}`]: fixedColumnIdx,
+			})
+		);
 	};
 
 	return (
@@ -359,7 +357,6 @@ function ViewTable({
 			<Modal
 				title="Column Settings"
 				open={isSettingModalVisible}
-				onOk={handleSettingModalOk}
 				onCancel={handleSettingModalCancel}
 				footer={[
 					<Button key="back" onClick={handleSettingModalCancel}>
