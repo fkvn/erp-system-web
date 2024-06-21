@@ -69,51 +69,6 @@ function UserViewTable() {
 				return <Tooltip title={`${fromNow(updatedOn)}`}>{updatedBy} </Tooltip>;
 			},
 		},
-		{
-			title: "Updated By",
-			dataIndex: "updatedBy",
-			key: "updatedBy",
-			render: (_, record) => {
-				const { updatedBy, updatedOn } = record;
-				return <Tooltip title={`${fromNow(updatedOn)}`}>{updatedBy} </Tooltip>;
-			},
-		},
-		{
-			title: "Updated By",
-			dataIndex: "updatedBy",
-			key: "updatedBy",
-			render: (_, record) => {
-				const { updatedBy, updatedOn } = record;
-				return <Tooltip title={`${fromNow(updatedOn)}`}>{updatedBy} </Tooltip>;
-			},
-		},
-		{
-			title: "Updated By",
-			dataIndex: "updatedBy",
-			key: "updatedBy",
-			render: (_, record) => {
-				const { updatedBy, updatedOn } = record;
-				return <Tooltip title={`${fromNow(updatedOn)}`}>{updatedBy} </Tooltip>;
-			},
-		},
-		{
-			title: "Updated By",
-			dataIndex: "updatedBy",
-			key: "updatedBy",
-			render: (_, record) => {
-				const { updatedBy, updatedOn } = record;
-				return <Tooltip title={`${fromNow(updatedOn)}`}>{updatedBy} </Tooltip>;
-			},
-		},
-		{
-			title: "Updated By",
-			dataIndex: "updatedBy",
-			key: "updatedBy",
-			render: (_, record) => {
-				const { updatedBy, updatedOn } = record;
-				return <Tooltip title={`${fromNow(updatedOn)}`}>{updatedBy} </Tooltip>;
-			},
-		},
 	];
 
 	const fetchUsers = async (queryParams) => {

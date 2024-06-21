@@ -345,12 +345,19 @@ function ViewTable({
 					<Flex
 						gap={20}
 						align="center"
-						justify="space-between"
+						// justify="space-between"
 						className="my-2"
 						wrap
 					>
 						{tableColumns.map((col, index) => (
-							<Flex key={index} gap={20} align="center" className="my-2" wrap>
+							<Flex
+								key={index}
+								gap={20}
+								vertical
+								align=""
+								className="my-2"
+								wrap
+							>
 								<Title level={5} className=" m-0">
 									{col?.title}
 								</Title>
