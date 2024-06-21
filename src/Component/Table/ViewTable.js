@@ -1,5 +1,5 @@
 import { RiEqualizer2Line, RiFilter2Line } from "@remixicon/react";
-import { Button, Flex, Form, Modal, Skeleton, Table } from "antd";
+import { Button, Flex, Form, Modal, Table } from "antd";
 import Title from "antd/lib/typography/Title";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -8,12 +8,18 @@ import {
 	FIXED_COLUMN_INDEXES,
 	HIDDEN_COLUMN_INDEXES,
 } from "../../Util/constants";
+import useMessage from "../Hook/MessageHook/useMessage";
 import NoResult from "../NotFound/NoResult";
 import ResizableTitle from "./ResizableTitle";
 
 function ViewTable({
 	id,
-	data, // Initial data (optional)
+	data = [], // Initial data (optional)
+	columns = [],
+	isLoading = true,
+	isSuccess = false,
+	isError = false,
+	error = "",
 	scrollX = 1000,
 	scrollY = 400,
 	pageSize = 10,
@@ -22,17 +28,23 @@ function ViewTable({
 	footer = () => <></>,
 	filterChildren, // Filter modal children
 	filterForm, // Form instance from Antd's useForm
-	fetchData = async () => {}, // Function to fetch data
+	fetchData = async () => {}, // Function to trigger fetching data,
+	defaultFixedColumnIdx = [],
 }) {
 	const { t } = useTranslation();
 	const [fixedColumnIdx, setFixedColumnIdx] = useState(
-		JSON.parse(localStorage.getItem(id) ?? "{}")[`${FIXED_COLUMN_INDEXES}`] ??
+		JSON.parse(localStorage.getItem(id) ?? "{}")[`${FIXED_COLUMN_INDEXES}`] ||
+			defaultFixedColumnIdx ||
 			[]
 	);
 	const [hiddenColumnIdx, setHiddenColumnIdx] = useState(
 		JSON.parse(localStorage.getItem(id) ?? "{}")[`${HIDDEN_COLUMN_INDEXES}`] ??
 			[]
 	);
+
+	const { fetchResult: tableData = [], totalCount = 1 } = data;
+
+	console.log(data);
 
 	const navigate = useNavigate();
 	const { pathname } = useLocation();
@@ -54,31 +66,26 @@ function ViewTable({
 					value: `${range[0]} - ${range[1]}`,
 					total: total,
 				}),
+			total: totalCount || 1,
 		},
 		filter: {
 			...filterParams, // Extract other params as filter
 		},
 	});
 
-	const [tableColumns, setTableColumns] = useState([]); // Start with empty columns
-
-	const [tableData, setTableData] = useState(data ?? []); // Initial data
+	const [tableColumns, setTableColumns] = useState(columns || []); // Start with empty columns
 
 	useEffect(() => {
 		if (tableData?.length > 0) {
-			// Generate columns from data if not already present
-			const generatedColumns = Object.keys(tableData[0]).map((key) => ({
-				title: key
-					.replace(/([A-Z])/g, " $1")
-					.trim()
-					.toLowerCase(), // Sentence case
-				dataIndex: key,
-				key,
-				hidden: false,
-			}));
-			setTableColumns(generatedColumns);
+			setTableParams({
+				...tableParams,
+				pagination: {
+					...tableParams.pagination,
+					total: totalCount, // Update total count for pagination
+				},
+			});
 		}
-	}, [tableData]);
+	}, [data]);
 
 	const handleResize =
 		(index) =>
@@ -162,6 +169,12 @@ function ViewTable({
 		fetchTableData();
 	}, []);
 
+	const { errorMessage } = useMessage();
+
+	if (isError) {
+		errorMessage(error);
+	}
+
 	const fetchTableData = async () => {
 		const { filter, pagination } = tableParams;
 		const queryParams = new URLSearchParams();
@@ -177,21 +190,23 @@ function ViewTable({
 		queryParams.append("page", pagination.current);
 		queryParams.append("limit", pagination.pageSize);
 
-		fetchData(queryParams)
-			.then(({ fetchResult, totalCount }) => {
-				setTableData(fetchResult);
-				setTableParams({
-					...tableParams,
-					pagination: {
-						...tableParams.pagination,
-						total: totalCount, // Update total count for pagination
-					},
-				});
-			})
-			.catch((error) => {
-				console.error("Error fetching data:", error);
-				// Handle any errors that might occur during the fetch request
-			});
+		fetchData(queryParams);
+		// .then((aa) => {
+		// 	console.log(aa);
+		// 	const { fetchResult, totalCount } = aa;
+		// 	setTableData(fetchResult);
+		// 	setTableParams({
+		// 		...tableParams,
+		// 		pagination: {
+		// 			...tableParams.pagination,
+		// 			total: totalCount, // Update total count for pagination
+		// 		},
+		// 	});
+		// })
+		// .catch((error) => {
+		// 	console.error("Error fetching data:", error);
+		// 	// Handle any errors that might occur during the fetch request
+		// });
 	};
 
 	const handleTableChange = (pagination) => {
@@ -280,34 +295,31 @@ function ViewTable({
 
 	return (
 		<>
-			{tableColumns.length === 0 ? (
-				<Skeleton active />
-			) : (
-				<Table
-					id={id}
-					className="w-100"
-					bordered
-					virtual
-					title={TbHeader}
-					components={{
-						header: {
-							cell: ResizableTitle,
-						},
-					}}
-					scroll={{
-						x: scrollX,
-						y: scrollY,
-					}}
-					columns={transformedColumns}
-					dataSource={tableData}
-					style={{ zIndex: 0 }}
-					size="large"
-					rowKey={rowKey}
-					pagination={tableParams.pagination}
-					footer={footer}
-					onChange={handleTableChange}
-				/>
-			)}
+			<Table
+				id={id}
+				className="w-100"
+				loading={isLoading}
+				bordered
+				virtual
+				title={TbHeader}
+				components={{
+					header: {
+						cell: ResizableTitle,
+					},
+				}}
+				scroll={{
+					x: scrollX,
+					y: scrollY,
+				}}
+				columns={transformedColumns}
+				dataSource={tableData}
+				style={{ zIndex: 0 }}
+				size="large"
+				rowKey={rowKey}
+				pagination={tableParams.pagination}
+				footer={footer}
+				onChange={handleTableChange}
+			/>
 
 			{/* Setting Modal */}
 			<Modal

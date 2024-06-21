@@ -1,7 +1,9 @@
 import dayjs from "dayjs";
 import localizedFormat from "dayjs/plugin/localizedFormat";
+import relativeTime from "dayjs/plugin/relativeTime";
 import jwt_decode from "jwt-decode";
 dayjs.extend(localizedFormat);
+dayjs.extend(relativeTime);
 
 export const validateToken = (access_token = "") => {
 	let isValidToken = false;
@@ -21,4 +23,8 @@ export const validateToken = (access_token = "") => {
 
 export const formatDate = (dateString, format = "LLL") => {
 	return dayjs(dateString).format(format);
+};
+
+export const fromNow = (dateString) => {
+	return dayjs(dateString).fromNow();
 };
