@@ -1,5 +1,5 @@
 import { RiEqualizer2Line, RiFilter2Line } from "@remixicon/react";
-import { Button, Flex, Form, Modal, Table } from "antd";
+import { Button, Divider, Flex, Form, Modal, Switch, Table } from "antd";
 import Title from "antd/lib/typography/Title";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -32,6 +32,9 @@ function ViewTable({
 	defaultFixedColumnIdx = [],
 }) {
 	const { t } = useTranslation();
+	const navigate = useNavigate();
+	const { pathname } = useLocation();
+
 	const [fixedColumnIdx, setFixedColumnIdx] = useState(
 		JSON.parse(localStorage.getItem(id) ?? "{}")[`${FIXED_COLUMN_INDEXES}`] ||
 			defaultFixedColumnIdx ||
@@ -41,14 +44,8 @@ function ViewTable({
 		JSON.parse(localStorage.getItem(id) ?? "{}")[`${HIDDEN_COLUMN_INDEXES}`] ??
 			[]
 	);
-
 	const { fetchResult: tableData = [], totalCount = 1 } = data;
-
-	console.log(data);
-
-	const navigate = useNavigate();
-	const { pathname } = useLocation();
-	const [searchParams] = useSearchParams();
+	const [searchParams, setSearchParams] = useSearchParams();
 	const page = searchParams.get("page") || currentPage || 1;
 	const limit = searchParams.get("limit") || pageSize || 10;
 	const filterParams = Object.fromEntries(
@@ -112,6 +109,12 @@ function ViewTable({
 		hidden: hiddenColumnIdx.includes(index),
 	}));
 
+	const isFilterOrSortingOn = () =>
+		Object.keys(tableParams?.filter)?.length > 0;
+
+	const isColumnSettingOn = () =>
+		fixedColumnIdx?.length > 0 || hiddenColumnIdx?.length > 0;
+
 	const TbHeader = () => (
 		<Flex
 			className="w-100"
@@ -121,19 +124,22 @@ function ViewTable({
 			justify="space-between"
 		>
 			<Title level={4}>User List</Title>
-			<Flex gap={0}>
-				<Button type="primary" onClick={() => setIsModalVisible(true)}>
+			<Flex gap={10}>
+				<Button
+					type={`${isFilterOrSortingOn() ? "primary" : "link"}`}
+					onClick={() => setIsModalVisible(true)}
+				>
 					<RiFilter2Line />
 				</Button>
-				<Button type="link" onClick={() => setIsSettingModalVisible(true)}>
+				<Button
+					type={`${isColumnSettingOn() ? "primary" : "link"}`}
+					onClick={() => setIsSettingModalVisible(true)}
+				>
 					<RiEqualizer2Line />
 				</Button>
 			</Flex>
 		</Flex>
 	);
-
-	const [isModalVisible, setIsModalVisible] = useState(false);
-	const [isSettingModalVisible, setIsSettingModalVisible] = useState(false);
 
 	const setDefaultFilterFormFields = () => {
 		const updatedFilterParams = Object.keys(filterParams).reduce(
@@ -145,21 +151,6 @@ function ViewTable({
 			}),
 			[]
 		);
-
-		// Object.fromEntries(
-		// 	Object.entries(filterParams).map(([key, value]) => {
-		// 		console.log(key, " - " + value);
-		// 		console.log(value?.includes(",") ? value.split(",") : value);
-		// 		console.log({
-		// 			[key]: value?.includes(",") ? value.split(",") : value,
-		// 		});
-		// 		return {
-		// 			[key]:value,
-		// 		};
-		// 	})
-		// );
-		console.log(filterParams);
-		console.log(updatedFilterParams);
 
 		filterForm.setFieldsValue(updatedFilterParams);
 	};
@@ -191,22 +182,6 @@ function ViewTable({
 		queryParams.append("limit", pagination.pageSize);
 
 		fetchData(queryParams);
-		// .then((aa) => {
-		// 	console.log(aa);
-		// 	const { fetchResult, totalCount } = aa;
-		// 	setTableData(fetchResult);
-		// 	setTableParams({
-		// 		...tableParams,
-		// 		pagination: {
-		// 			...tableParams.pagination,
-		// 			total: totalCount, // Update total count for pagination
-		// 		},
-		// 	});
-		// })
-		// .catch((error) => {
-		// 	console.error("Error fetching data:", error);
-		// 	// Handle any errors that might occur during the fetch request
-		// });
 	};
 
 	const handleTableChange = (pagination) => {
@@ -220,36 +195,42 @@ function ViewTable({
 		});
 	};
 
+	const [isModalVisible, setIsModalVisible] = useState(false);
+
 	const handleModalOk = () => {
 		const { pagination } = tableParams;
 		const filters = filterForm?.getFieldsValue() || {};
 		const queryParams = new URLSearchParams();
 		// Loop through each filter property in tableParams.filter
 		Object.entries(filters).forEach(([filterKey, filterValue]) => {
-			if (filterValue) {
-				// Check if filter value exists
+			if (filterValue?.length > 0) {
 				queryParams.append(filterKey, filterValue);
 			}
 		});
 		queryParams.append("page", pagination.current);
 		queryParams.append("limit", pagination.pageSize);
-
-		// Update localStorage with fixed and hidden columns
-		localStorage.setItem(
-			id,
-			JSON.stringify({
-				[`${FIXED_COLUMN_INDEXES}`]: fixedColumnIdx,
-				[`${HIDDEN_COLUMN_INDEXES}`]: hiddenColumnIdx,
-			})
-		);
-
 		navigate(`${pathname}?${queryParams.toString()}`);
+
 		setIsModalVisible(false);
 	};
 
 	const handleModalCancel = () => {
+		const resetFilterParams = Object.keys(tableParams?.filter).reduce(
+			(r, k) => ({
+				...r,
+				[k]: filterParams[k]?.includes(",")
+					? filterParams[k].split(",")
+					: filterParams[k],
+			}),
+			[]
+		);
+
+		filterForm.setFieldsValue(resetFilterParams);
+
 		setIsModalVisible(false);
 	};
+
+	const [isSettingModalVisible, setIsSettingModalVisible] = useState(false);
 
 	const handleSettingModalOk = () => {
 		// Update localStorage with fixed and hidden columns
@@ -321,9 +302,9 @@ function ViewTable({
 				onChange={handleTableChange}
 			/>
 
-			{/* Setting Modal */}
+			{/* Filter & Sorting Modal */}
 			<Modal
-				title="Table Setting"
+				title="Filter & Sorting"
 				open={isModalVisible}
 				onOk={handleModalOk}
 				onCancel={handleModalCancel}
@@ -339,34 +320,59 @@ function ViewTable({
 							]
 						: []),
 				]}
+				loading={isLoading}
 			>
-				<Flex vertical>
-					{/* Filter form */}
+				<Divider className="m-0" />
+				<Flex vertical className="py-4 w-100">
 					{filterChildren ?? <NoResult />}
-					{/* Fixed and Hidden setting */}
-					<Form layout="vertical">
-						{tableColumns.map((col, index) => (
-							<Form.Item
-								key={index}
-								label={col.title}
-								className="d-flex align-items-center"
-							>
-								<Button
-									type="primary"
-									onClick={() => handleFixedColumnChange(index)}
-								>
-									{fixedColumnIdx.includes(index) ? "Unfix" : "Fix"}
-								</Button>
-								<Button
-									type="primary"
-									onClick={() => handleHiddenColumnChange(index)}
-								>
-									{hiddenColumnIdx.includes(index) ? "Show" : "Hide"}
-								</Button>
-							</Form.Item>
-						))}
-					</Form>
 				</Flex>
+			</Modal>
+
+			{/* Setting Modal */}
+			<Modal
+				title="Column Settings"
+				open={isSettingModalVisible}
+				onOk={handleSettingModalOk}
+				onCancel={handleSettingModalCancel}
+				footer={[
+					<Button key="back" onClick={handleSettingModalCancel}>
+						Close
+					</Button>,
+				]}
+			>
+				<Divider className="m-0" />
+				<Form layout="vertical" className="py-2">
+					<Flex
+						gap={20}
+						align="center"
+						justify="space-between"
+						className="my-2"
+						wrap
+					>
+						{tableColumns.map((col, index) => (
+							<Flex key={index} gap={20} align="center" className="my-2" wrap>
+								<Title level={5} className=" m-0">
+									{col?.title}
+								</Title>
+
+								<Flex gap={10} align="center">
+									<Switch
+										checkedChildren={"Fix"}
+										unCheckedChildren="UnFix"
+										checked={fixedColumnIdx.includes(index)}
+										onClick={() => handleFixedColumnChange(index)}
+									/>
+									<Switch
+										checkedChildren={"Hide"}
+										unCheckedChildren="Show"
+										checked={hiddenColumnIdx.includes(index)}
+										onClick={() => handleHiddenColumnChange(index)}
+									/>
+								</Flex>
+							</Flex>
+						))}
+					</Flex>
+				</Form>
 			</Modal>
 		</>
 	);

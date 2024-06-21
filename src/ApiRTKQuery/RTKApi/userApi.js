@@ -10,7 +10,12 @@ export const userApi = createApi({
 				url: `/users?${stringParams}`,
 			}),
 		}),
+		findUserStatus: builder.query({
+			query: () => ({
+				url: `/users/status`,
+			}),
+		}),
 	}),
 });
 
-export const { useFindUsersQuery } = userApi;
+export const { useFindUsersQuery, useFindUserStatusQuery } = userApi;
