@@ -17,6 +17,7 @@ function SelectFormControl({
 	selectProps = {},
 	required = false,
 	showLabel = true,
+	allowClear = false,
 	flexProp = {},
 	extra = <></>,
 } = {}) {
@@ -46,6 +47,7 @@ function SelectFormControl({
 			>
 				<Select
 					mode={mode} // Allow multiple selections
+					allowClear={allowClear}
 					placeholder={placeholder}
 					{...selectProps}
 				>

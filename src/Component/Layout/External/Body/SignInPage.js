@@ -3,8 +3,12 @@ import { useForm } from "antd/es/form/Form";
 import Title from "antd/lib/typography/Title";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useSignInByPasswordMutation } from "../../../../ApiRTKQuery/RTKApi/authApi";
-import { USERNAME_OR_EMAIL_FIELD } from "../../../../Util/constants";
+import {
+	REDIRECT_URI,
+	USERNAME_OR_EMAIL_FIELD,
+} from "../../../../Util/constants";
 import PasswordFormControl from "../../../Form/PasswordFormControl";
 import SubmitBtnFormControl from "../../../Form/SubmitBtnFormControl";
 import TermAgreement from "../../../Form/TermAgreement";
@@ -15,6 +19,10 @@ import Header from "../Header";
 
 function SignInPage() {
 	const { t } = useTranslation();
+	const navigate = useNavigate();
+	const [params] = useSearchParams();
+	const redirectUri = params.get(REDIRECT_URI);
+
 	const { errorMessage } = useMessage();
 	const { auth, signin } = useAuth();
 	const [form] = useForm();
@@ -36,7 +44,11 @@ function SignInPage() {
 		if (isSuccess) {
 			signin(data);
 		} else {
-			auth(false).catch(() => {});
+			auth(false)
+				.then(() => {
+					navigate(redirectUri ? `${redirectUri}` : -1);
+				})
+				.catch(() => {});
 		}
 	}, [isSuccess, signin, data, auth]);
 

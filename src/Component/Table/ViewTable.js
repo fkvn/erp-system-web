@@ -41,8 +41,6 @@ function ViewTable({
 			[]
 	);
 
-	console.log(JSON.parse(localStorage.getItem(id) ?? "{}"));
-
 	const [hiddenColumnIdx, setHiddenColumnIdx] = useState(
 		JSON.parse(localStorage.getItem(id) ?? "{}")[`${HIDDEN_COLUMN_INDEXES}`] ??
 			[]
@@ -73,6 +71,10 @@ function ViewTable({
 		},
 		filter: {
 			...filterParams, // Extract other params as filter
+		},
+		sorter: {
+			field: "username",
+			order: "ascend",
 		},
 	});
 
@@ -202,7 +204,7 @@ function ViewTable({
 		queryParams.append("page", pagination.current);
 		queryParams.append("limit", pagination.pageSize);
 
-		navigate(`${pathname}?${queryParams.toString()}`);
+		// navigate(`${pathname}?${queryParams.toString()}`);
 
 		// setTableParams({
 		// 	...tableParams,
@@ -211,6 +213,8 @@ function ViewTable({
 		// 		current: pagination.current,
 		// 		pageSize: pagination.pageSize,
 		// 	},
+		// 	sortOrder: Array.isArray(sorter) ? undefined : sorter.order,
+		// 	sortField: Array.isArray(sorter) ? undefined : sorter.field,
 		// });
 	};
 
@@ -366,13 +370,7 @@ function ViewTable({
 			>
 				<Divider className="m-0" />
 				<Form layout="vertical" className="py-2">
-					<Flex
-						gap={20}
-						align="center"
-						// justify="space-between"
-						className="my-2"
-						wrap
-					>
+					<Flex gap={20} align="center" className="my-2" wrap>
 						{tableColumns.map((col, index) => (
 							<Flex
 								key={index}

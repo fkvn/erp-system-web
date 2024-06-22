@@ -15,7 +15,7 @@ function Header({
 	const screens = useBreakpoint();
 	const navigate = useNavigate();
 	const [params] = useSearchParams();
-	const redirectUri = params.get(REDIRECT_URI) || "/";
+	const redirectUri = params.get(REDIRECT_URI);
 	const { destroyMessage } = useMessage();
 
 	const App = () => (
@@ -51,7 +51,7 @@ function Header({
 							onClick={() =>
 								onBeforeClose().then(() => {
 									destroyMessage();
-									navigate(`${redirectUri}`);
+									navigate(redirectUri ? `${redirectUri}` : -1);
 								})
 							}
 							style={{ fontSize: "1rem" }}

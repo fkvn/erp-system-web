@@ -1,6 +1,6 @@
 import { Form, Tooltip } from "antd";
 import { useForm } from "antd/es/form/Form";
-import { useState } from "react";
+import React, { useState } from "react";
 import {
 	useFindUserStatusQuery,
 	useFindUsersQuery,
@@ -22,29 +22,29 @@ function UserViewTable() {
 		}
 	);
 
-	const [fetchUserStatus, setFetchUserStatus] = useState(false);
-	const { data: status } = useFindUserStatusQuery(
-		{},
-		{ skip: !fetchUserStatus }
-	);
+	const { data: status } = useFindUserStatusQuery({}, { skip: false });
 
-	const defaultFixedColumnIdx = [2];
+	const defaultFixedColumnIdx = [];
 
 	const columns = [
 		{
 			title: "User Code",
 			dataIndex: "userCode",
 			key: "userCode",
+			sorter: { multiple: 1 },
+			defaultSortOrder: "",
 		},
 		{
 			title: "User Name",
 			dataIndex: "username",
 			key: "username",
+			sorter: { multiple: 2 },
 		},
 		{
 			title: "Email",
 			dataIndex: "email",
 			key: "email",
+			sorter: { multiple: 1 },
 		},
 		{
 			title: "Status",
@@ -52,12 +52,21 @@ function UserViewTable() {
 			key: "status",
 		},
 		{
+			title: "Created On",
+			dataIndex: "createdOn",
+			key: "createdOn",
+			render: (_, record) => {
+				const { createdOn } = record;
+				return <Tooltip title={`${createdOn}`}>{fromNow(createdOn)} </Tooltip>;
+			},
+		},
+		{
 			title: "Created By",
 			dataIndex: "createdBy",
 			key: "createdBy",
 			render: (_, record) => {
-				const { createdBy, createdOn } = record;
-				return <Tooltip title={`${fromNow(createdOn)}`}>{createdBy} </Tooltip>;
+				const { createdBy } = record;
+				return createdBy;
 			},
 		},
 		{
@@ -92,13 +101,13 @@ function UserViewTable() {
 				mode="multiple"
 				label="Status"
 				itemName="status"
-				options={(status ?? []).map((s) => ({
+				allowClear={true}
+				options={status?.map((s) => ({
 					value: s,
 					title: s?.replace("_", " "),
 				}))}
 				selectProps={{
 					className: "mx-4 w-100 ",
-					onDropdownVisibleChange: () => setFetchUserStatus(true),
 				}}
 			/>
 		</Form>
