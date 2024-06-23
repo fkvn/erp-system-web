@@ -19,17 +19,29 @@ function UserViewTable() {
 
 	const tableId = `${userId}_${pathname.slice(1)}_${USER_VIEW_TABLE}`;
 
-	const { pagination, filter = {} } = JSON.parse(
-		localStorage.getItem(tableId) ?? "{}"
-	);
+	const {
+		pagination,
+		filter = {},
+		sorter,
+	} = JSON.parse(localStorage.getItem(tableId) ?? "{}");
 
-	const fetchParams = (pagination, filter) => ({
-		page: pagination?.current || 1,
-		limit: pagination?.pageSize || 10,
-		...(filter?.status?.length > 0 && { status: filter?.status }),
-	});
+	const fetchParams = (pagination, filter, sorter) => {
+		return {
+			page: pagination?.current || 1,
+			limit: pagination?.pageSize || 10,
+			...(filter?.status?.length > 0 && { status: filter?.status }),
+			...(sorter?.length > 0 &&
+				sorter.reduce(
+					({ sortBy, sortOrder }, s) => ({
+						sortBy: [...sortBy, s.columnKey],
+						sortOrder: [...sortOrder, s.order === "ascend" ? "ASC" : "DESC"],
+					}),
+					{ sortBy: [], sortOrder: [] }
+				)),
+		};
+	};
 
-	const [params, setParams] = useState(fetchParams(pagination, filter));
+	const [params, setParams] = useState(fetchParams(pagination, filter, sorter));
 
 	const {
 		isLoading,
@@ -39,7 +51,7 @@ function UserViewTable() {
 	} = useFindUsersQuery(new URLSearchParams(params).toString());
 
 	const fetchData = async (params) => {
-		setParams(fetchParams(params?.pagination, params?.filter));
+		setParams(fetchParams(params?.pagination, params?.filter, params?.sorter));
 	};
 
 	const baseColumns = [

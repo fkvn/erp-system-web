@@ -164,6 +164,7 @@ function ViewTable({
 			total: 1,
 		},
 		filter: {
+			// should initialize the filter fields, otherwise, the Cancel modal won't reset for the 1st render
 			filter: {},
 			filterForm: <></>, // Filter modal children
 			form: undefined, // Form.useForm = (): [FormInstance]
@@ -178,6 +179,10 @@ function ViewTable({
 		errorMessage(error);
 	}
 
+	const { columns: localColumns, sorter = [] } = JSON.parse(
+		localStorage.getItem(id) ?? "{}"
+	);
+
 	const [tableParams, setTableParams] = useState({
 		pagination: {
 			...params?.pagination,
@@ -188,12 +193,8 @@ function ViewTable({
 				}),
 		},
 		filter: params?.filter?.filter,
-		sorter: [],
+		sorter: sorter,
 	});
-
-	const { columns: localColumns, sorter } = JSON.parse(
-		localStorage.getItem(id) ?? "{}"
-	);
 
 	// get the localColumns first if any
 	const [tableColumns, setTableColumns] = useState(
