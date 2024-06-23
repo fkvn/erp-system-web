@@ -370,7 +370,6 @@ function ViewTable({
 	);
 
 	const handleTableChange = (pagination, _, sorter) => {
-		console.log(sorter);
 		setTableParams({
 			...tableParams,
 			pagination: {
@@ -399,6 +398,14 @@ function ViewTable({
 			),
 		});
 		setIsFilterModalVisible(false);
+	};
+
+	const handleClearFilter = () => {
+		filterForm?.setFieldsValue(
+			Object.fromEntries(
+				Object.keys(filterForm?.getFieldsValue()).map((key) => [key, null])
+			)
+		);
 	};
 
 	const handleFilterModalCancel = () => {
@@ -499,11 +506,7 @@ function ViewTable({
 				title={
 					<Flex gap={10}>
 						Filter{" "}
-						<Button
-							type="link"
-							className="m-0 p-0"
-							onClick={() => filterForm?.resetFields()}
-						>
+						<Button type="link" className="m-0 p-0" onClick={handleClearFilter}>
 							<span style={{ fontSize: ".8rem", paddingBottom: ".2rem" }}>
 								Clear Filter
 							</span>

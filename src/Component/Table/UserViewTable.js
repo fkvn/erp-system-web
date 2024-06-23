@@ -70,9 +70,15 @@ function UserViewTable() {
 	const { data: status } = useFindUserStatusQuery({}, { skip: false });
 
 	const tableId = `${userId}_${pathname.slice(1)}_${USER_VIEW_TABLE}`;
-	const defaultSettings = JSON.parse(localStorage.getItem(tableId) ?? "{}");
-	const { pagination, filter, fixedColumnIdx, hiddenColumnIdx, sorter } =
-		defaultSettings;
+
+	const {
+		columns: localColumns,
+		pagination,
+		filter,
+		fixedColumnIdx,
+		hiddenColumnIdx,
+		sorter,
+	} = JSON.parse(localStorage.getItem(tableId) ?? "{}");
 
 	const fetchParams = (pagination, filter) => ({
 		page: pagination?.current,
@@ -93,7 +99,7 @@ function UserViewTable() {
 		setParams(fetchParams(params?.pagination, params?.filter));
 	};
 
-	const columns = (defaultSettings?.columns || baseColumns)?.map((c) => ({
+	const columns = (localColumns || baseColumns)?.map((c) => ({
 		...c,
 		// Find the sorter object that matches the current column's key
 		defaultSortOrder: sorter?.find((s) => s.columnKey === c.key)?.order,
@@ -108,7 +114,7 @@ function UserViewTable() {
 			}}
 			requiredMark
 			initialValues={{
-				status: defaultSettings?.filter?.status || [],
+				status: filter?.status || "",
 			}}
 		>
 			<SelectFormControl
