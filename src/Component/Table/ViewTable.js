@@ -29,6 +29,7 @@ import { Resizable } from "react-resizable";
 import useMessage from "../Hook/MessageHook/useMessage";
 import NoResult from "../NotFound/NoResult";
 
+/** Drag Column Sorting Component */
 const DragIndexContext = createContext({
 	active: -1,
 	over: -1,
@@ -138,100 +139,66 @@ const TableHeaderCell = (props) => {
 	);
 };
 
+/** App Component */
 function ViewTable({
 	id,
-	data: tableData = [], // Initial data (optional)
+	rowKey = (record) => record?.id || "",
 	columns = [],
+	data: tableData = [], // Initial data
+	fetchData = async () => {}, // Function to trigger fetching data,
 	isLoading = true,
 	isError = false,
 	error = "",
-	scrollX = 1000,
-	scrollY = 400,
-	pagination = {
-		pageSizeOptions: [5, 10, 20, 50, 100],
-		showQuickJumper: true,
-		showSizeChanger: true,
-		current: 1,
-		pageSize: 10,
-		total: 1,
+	virtual = true,
+	virtualProps = {
+		scrollX: 1000,
+		scrollY: 400,
 	},
-	columnsSetting = {
-		fixedColumnIdx: [],
-		hiddenColumnIdx: [],
+	params = {
+		pagination: {
+			pageSizeOptions: [5, 10, 20, 50, 100],
+			showQuickJumper: true,
+			showSizeChanger: true,
+			current: 1,
+			pageSize: 10,
+			total: 1,
+		},
+		filter: {
+			filter: {},
+			filterForm: <></>, // Filter modal children
+			form: undefined, // Form.useForm = (): [FormInstance]
+		},
 	},
-	rowKey = (record) => record?.id || "",
 	footer = () => <></>,
-	filter = {},
-	filterChildren, // Filter modal children
-	filterForm, // Form instance from Antd's useForm
-	fetchData = async () => {}, // Function to trigger fetching data,
 	tableProps = {},
 }) {
 	const { t } = useTranslation();
-	const defaultSettings = JSON.parse(localStorage.getItem(id) ?? "{}");
+	const { errorMessage } = useMessage();
+	if (isError) {
+		errorMessage(error);
+	}
 
 	const [tableParams, setTableParams] = useState({
 		pagination: {
-			...pagination,
+			...params?.pagination,
 			showTotal: (total, range) =>
 				t("pagination_item_count_msg", {
 					value: `${range[0]} - ${range[1]}`,
 					total: total,
 				}),
 		},
-		filter: filter,
+		filter: params?.filter?.filter,
+		sorter: [],
 	});
 
-	const [tableColumns, setTableColumns] = useState(columns || []);
-	const [fixedColumnIdx, setFixedColumnIdx] = useState(
-		columnsSetting?.fixedColumnIdx || []
-	);
-	const [hiddenColumnIdx, setHiddenColumnIdx] = useState(
-		columnsSetting?.hiddenColumnIdx || []
+	const { columns: localColumns, sorter } = JSON.parse(
+		localStorage.getItem(id) ?? "{}"
 	);
 
-	useEffect(() => {
-		localStorage.setItem(
-			id,
-			JSON.stringify({
-				...defaultSettings,
-				fixedColumnIdx: fixedColumnIdx,
-				hiddenColumnIdx: hiddenColumnIdx,
-				columns: tableColumns,
-			})
-		);
-	}, [fixedColumnIdx, hiddenColumnIdx, tableColumns]);
-
-	useEffect(() => {
-		fetchData(tableParams);
-	}, [
-		tableParams.filter,
-		tableParams.pagination.current,
-		tableParams.pagination.pageSize,
-		tableParams.sorter,
-	]);
-
-	// since pagination is sent separately, we need to update TableParams once this is updated
-	useEffect(() => {
-		setTableParams({
-			...tableParams,
-			pagination: {
-				...tableParams.pagination,
-				...pagination,
-			},
-		});
-	}, [pagination]);
-
-	useEffect(() => {
-		localStorage.setItem(id, JSON.stringify(tableParams));
-	}, [tableParams]);
-
-	const { errorMessage } = useMessage();
-
-	if (isError) {
-		errorMessage(error);
-	}
-
+	// get the localColumns first if any
+	const [tableColumns, setTableColumns] = useState(
+		localColumns?.length > 0 ? localColumns : columns
+	);
 	/** Drag Column Sorting */
 	const [dragIndex, setDragIndex] = useState({
 		active: -1,
@@ -283,91 +250,80 @@ function ViewTable({
 		};
 
 	/** transformed columns for drag sorting and resizable */
-	const transformedColumns = tableColumns.map((col, index) => ({
-		...col,
-		title: (
-			<Flex gap={10}>
-				<DragHandle />
-				{col.title}
-			</Flex>
-		),
-		width: col.width ?? 200,
-		onHeaderCell: (column) => ({
-			// id for drag sorting
-			id: `${col.key}`,
-			// width and onResize for resizable setting
-			width: column.width,
-			onResize: handleResize(index),
-		}),
-		onCell: () => ({
-			id: `${col.key}`,
-		}),
-		// Apply fixed column
-		fixed: fixedColumnIdx.includes(index) ? "left" : undefined,
-		// Apply hidden from the state
-		hidden: hiddenColumnIdx.includes(index),
-		// multiple only matters for client-side sorting
-		sorter: { multiple: 1 },
-	}));
+	const transformedColumns = tableColumns.map((col, index) => {
+		return {
+			...col,
+			title: (
+				<Flex gap={10}>
+					<DragHandle />
+					{col.title}
+				</Flex>
+			),
+			width: col.width ?? 200,
+			onHeaderCell: (column) => ({
+				// id for drag sorting
+				id: `${col.key}`,
+				// width and onResize for resizable setting
+				width: column.width,
+				onResize: handleResize(index),
+			}),
+			onCell: () => ({
+				id: `${col.key}`,
+			}),
+			// multiple's value only matters for client-side sorting
+			sorter: { multiple: 1 },
+			// Find the sorter object that matches the current column's key
+			defaultSortOrder: sorter?.find((s) => s.columnKey === col.key)?.order,
+			// Restore render function from based column
+			render: columns.find((c) => c.key === col.key)?.render,
+		};
+	});
 
-	const isFilterOrSortingOn = () =>
-		Object.keys(tableParams?.filter ?? {})?.length > 0;
+	useEffect(() => {
+		fetchData(tableParams);
+	}, [
+		tableParams.filter,
+		tableParams.pagination.current,
+		tableParams.pagination.pageSize,
+		tableParams.sorter,
+	]);
+
+	useEffect(() => {
+		setTableParams({
+			...tableParams,
+			pagination: {
+				...tableParams.pagination,
+				total: params?.pagination?.total,
+			},
+		});
+	}, [params?.pagination?.total]);
+
+	// update localStorage
+	useEffect(() => {
+		localStorage.setItem(
+			id,
+			JSON.stringify({
+				...tableParams,
+				columns: [...tableColumns],
+			})
+		);
+	}, [tableColumns, tableParams]);
+
+	const numberOfFiltersApplied = Object.values(
+		tableParams?.filter ?? {}
+	).filter(
+		(filterValue) =>
+			filterValue !== undefined &&
+			filterValue !== null &&
+			filterValue.length > 0
+	).length;
+
+	const isFilterOrSortingOn = () => numberOfFiltersApplied > 0;
 
 	const isColumnSettingOn = () =>
-		fixedColumnIdx?.length > 0 || hiddenColumnIdx?.length > 0;
+		tableColumns.findIndex((c) => (c.fixed && c.fixed !== "") || c.hidden) > -1;
 
 	const [isFilterVisible, setIsFilterVisible] = useState(false);
-
-	const TbHeader = () => (
-		<Flex vertical gap={10}>
-			<Flex
-				className="w-100"
-				style={{
-					minHeight: "2rem",
-				}}
-				align="center"
-				justify="space-between"
-			>
-				<Title level={4}>User List</Title>
-				<Button
-					size="middle"
-					type={`${isFilterOrSortingOn() || isColumnSettingOn() ? "primary" : "default"}`}
-					onClick={() => setIsFilterVisible(!isFilterVisible)}
-				>
-					<RiFilter2Line size={20} />{" "}
-					{Object.keys(tableParams?.filter ?? {})?.length > 0
-						? Object.keys(tableParams?.filter ?? {})?.length
-						: ""}{" "}
-					Filter
-				</Button>
-			</Flex>
-			<Divider className="m-0" />
-			{isFilterVisible && (
-				<Flex gap={10}>
-					<Button
-						size="middle"
-						shape="round"
-						type={`${isFilterOrSortingOn() ? "primary" : "default"}`}
-						onClick={() => setIsFilterModalVisible(true)}
-					>
-						<RiFilter2Line size={20} />{" "}
-						{Object.keys(tableParams?.filter ?? {})?.length > 0
-							? Object.keys(tableParams?.filter ?? {})?.length
-							: ""}{" "}
-						Filter
-					</Button>
-					<Button
-						size="middle"
-						shape="round"
-						type={`${isColumnSettingOn() ? "primary" : "default"}`}
-						onClick={() => setIsColumnsModalVisible(true)}
-					>
-						<RiEqualizer2Line size={20} /> Columns
-					</Button>
-				</Flex>
-			)}
-		</Flex>
-	);
 
 	const handleTableChange = (pagination, _, sorter) => {
 		setTableParams({
@@ -389,53 +345,150 @@ function ViewTable({
 	const [isFilterModalVisible, setIsFilterModalVisible] = useState(false);
 
 	const handleFilterModalOk = () => {
+		const filterForm = params?.filter?.form;
+
+		// 1. Get filter values from the form
+		const filterValues = filterForm?.getFieldsValue();
+
+		// 2. Create a new filter object with only valid values
+		const filter = Object.fromEntries(
+			Object.entries(filterValues).filter(
+				([_, filterValue]) =>
+					filterValue !== undefined &&
+					filterValue !== null &&
+					filterValue.length > 0
+			)
+		);
+
+		// 3. Update tableParams with the new filter
 		setTableParams({
 			...tableParams,
-			filter: Object.fromEntries(
-				Object.entries(filterForm?.getFieldsValue()).filter(
-					([_, filterValue]) => filterValue && filterValue.length > 0
-				)
-			),
+			filter,
 		});
+
 		setIsFilterModalVisible(false);
 	};
 
-	const handleClearFilter = () => {
-		filterForm?.setFieldsValue(
-			Object.fromEntries(
-				Object.keys(filterForm?.getFieldsValue()).map((key) => [key, null])
-			)
+	const handleClearFilter = (autoApply = false) => {
+		const filterForm = params?.filter?.form;
+		const filterKeys = Object.keys(filterForm?.getFieldsValue());
+		const filter = filterForm?.setFieldsValue(
+			Object.fromEntries(filterKeys.map((key) => [key, null]))
 		);
+
+		if (autoApply)
+			setTableParams({
+				...tableParams,
+				filter,
+			});
 	};
 
 	const handleFilterModalCancel = () => {
+		const filterForm = params?.filter?.form;
+
 		filterForm?.setFieldsValue(tableParams?.filter);
+
 		setIsFilterModalVisible(false);
 	};
 
-	const [isColumnsModalVisible, setIsColumnsModalVisible] = useState(false);
+	const [isColumnsSettingModalVisible, setIsColumnsSettingModalVisible] =
+		useState(false);
 
-	const handleFixedColumnChange = (index) => {
-		const updatedFixedColumnIdx = fixedColumnIdx.includes(index)
-			? fixedColumnIdx.filter((i) => i !== index)
-			: [...fixedColumnIdx, index];
+	const handleFixedColumnsChange = (index) => {
+		const updatedTableColumns = [...tableColumns];
+		const column = updatedTableColumns[index];
 
-		// Toggle fixed column index
-		setFixedColumnIdx(updatedFixedColumnIdx);
+		// Toggle the 'fixed' property of the column
+		column.fixed = column.fixed && column.fixed !== "" ? "" : "left";
+
+		console.log(column);
+
+		// Update the tableColumns state
+		setTableColumns(updatedTableColumns);
 	};
 
-	const handleHiddenColumnChange = (index) => {
-		const updatedHiddenColumnIdx = hiddenColumnIdx.includes(index)
-			? hiddenColumnIdx.filter((i) => i !== index)
-			: [...hiddenColumnIdx, index];
+	const handleHiddenColumnsChange = (index) => {
+		const updatedTableColumns = [...tableColumns];
+		const column = updatedTableColumns[index];
 
-		// Toggle hidden column index
-		setHiddenColumnIdx(updatedHiddenColumnIdx);
+		// Toggle the 'fixed' property of the column
+		column.hidden = !column.hidden;
+
+		// Update the tableColumns state
+		setTableColumns(updatedTableColumns);
+	};
+
+	const handleClearColumnsSetting = () => {
+		setTableColumns((prevColumns) =>
+			prevColumns.map((column) => ({
+				...column,
+				fixed: "", // Clear fixed property
+				hidden: false, // Set hidden to false
+			}))
+		);
 	};
 
 	const handleColumnsModalCancel = () => {
-		setIsColumnsModalVisible(false);
+		setIsColumnsSettingModalVisible(false);
 	};
+
+	const TbHeader = () => (
+		<Flex vertical gap={10}>
+			<Flex
+				className="w-100"
+				style={{
+					minHeight: "2rem",
+				}}
+				align="center"
+				justify="space-between"
+			>
+				<Flex gap={10}>
+					<Title level={4}>User List</Title>{" "}
+					{numberOfFiltersApplied > 0 && (
+						<Button
+							type="link"
+							className="p-0"
+							onClick={() => {
+								handleClearFilter(true);
+							}}
+						>
+							Clear filter
+						</Button>
+					)}
+				</Flex>
+				<Button
+					size="middle"
+					type={`${isFilterOrSortingOn() || isColumnSettingOn() ? "primary" : "default"}`}
+					onClick={() => setIsFilterVisible(!isFilterVisible)}
+				>
+					<RiFilter2Line size={20} />{" "}
+					{numberOfFiltersApplied > 0 ? numberOfFiltersApplied : ""} Filter
+				</Button>
+			</Flex>
+			<Divider className="m-0" />
+			{isFilterVisible && (
+				<Flex gap={10}>
+					<Button
+						size="middle"
+						shape="round"
+						type={`${isFilterOrSortingOn() ? "primary" : "default"}`}
+						onClick={() => setIsFilterModalVisible(true)}
+					>
+						<RiFilter2Line size={20} />{" "}
+						{numberOfFiltersApplied > 0 ? numberOfFiltersApplied : ""} Filter
+					</Button>
+					<Button
+						size="middle"
+						shape="round"
+						type={`${isColumnSettingOn() ? "primary" : "default"}`}
+						onClick={() => setIsColumnsSettingModalVisible(true)}
+					>
+						<RiEqualizer2Line size={20} /> Columns
+					</Button>
+				</Flex>
+			)}
+		</Flex>
+	);
 
 	return (
 		<>
@@ -447,34 +500,35 @@ function ViewTable({
 				collisionDetection={closestCenter}
 			>
 				<SortableContext
-					items={columns.map((i) => i.key)}
+					items={tableColumns.map((i) => i.key)}
 					strategy={horizontalListSortingStrategy}
 				>
 					<DragIndexContext.Provider value={dragIndex}>
 						<Table
 							id={id}
-							className="w-100"
-							loading={isLoading}
+							rowKey={rowKey}
 							bordered
-							virtual
+							size="large"
+							className="w-100"
+							style={{ zIndex: 0 }}
+							loading={isLoading}
+							virtual={virtual}
+							scroll={
+								virtual
+									? { x: virtualProps.scrollX, y: virtualProps.scrollY }
+									: undefined
+							}
 							title={TbHeader}
 							components={{
 								header: {
 									cell: TableHeaderCell,
 								},
 							}}
-							scroll={{
-								x: scrollX,
-								y: scrollY,
-							}}
 							columns={transformedColumns}
 							dataSource={tableData}
-							style={{ zIndex: 0 }}
-							size="large"
-							rowKey={rowKey}
 							pagination={tableParams.pagination}
-							footer={footer}
 							onChange={handleTableChange}
+							footer={footer}
 							{...tableProps}
 						/>
 					</DragIndexContext.Provider>
@@ -490,8 +544,8 @@ function ViewTable({
 									}}
 								>
 									{
-										columns[
-											columns.findIndex((i) => i.key === dragIndex.active)
+										tableColumns[
+											tableColumns.findIndex((i) => i.key === dragIndex.active)
 										]?.title
 									}
 								</th>
@@ -520,7 +574,7 @@ function ViewTable({
 					<Button key="back" onClick={handleFilterModalCancel}>
 						Cancel
 					</Button>,
-					...(filterChildren
+					...(params?.filter?.filterForm
 						? [
 								<Button
 									key="submit"
@@ -535,7 +589,7 @@ function ViewTable({
 				loading={isLoading}
 			>
 				<Divider className="m-0" />
-				{filterChildren ?? <NoResult />}
+				{params?.filter?.filterForm ?? <NoResult />}
 			</Modal>
 
 			{/* Setting Modal */}
@@ -546,11 +600,7 @@ function ViewTable({
 						<Button
 							type="link"
 							className="m-0 p-0"
-							onClick={() => {
-								setHiddenColumnIdx([]);
-								setFixedColumnIdx([]);
-								localStorage.removeItem(id);
-							}}
+							onClick={handleClearColumnsSetting}
 						>
 							<span style={{ fontSize: ".8rem", paddingBottom: ".2rem" }}>
 								Reset Fields
@@ -558,7 +608,7 @@ function ViewTable({
 						</Button>
 					</Flex>
 				}
-				open={isColumnsModalVisible}
+				open={isColumnsSettingModalVisible}
 				onCancel={handleColumnsModalCancel}
 				footer={[
 					<Button key="back" onClick={handleColumnsModalCancel}>
@@ -585,14 +635,14 @@ function ViewTable({
 									<Switch
 										checkedChildren={"Fix"}
 										unCheckedChildren="UnFix"
-										checked={fixedColumnIdx.includes(index)}
-										onClick={() => handleFixedColumnChange(index)}
+										checked={col?.fixed && col?.fixed !== ""}
+										onClick={() => handleFixedColumnsChange(index)}
 									/>
 									<Switch
 										unCheckedChildren={"Hide"}
 										checkedChildren="Show"
-										checked={!hiddenColumnIdx.includes(index)}
-										onClick={() => handleHiddenColumnChange(index)}
+										checked={!col?.hidden}
+										onClick={() => handleHiddenColumnsChange(index)}
 									/>
 								</Flex>
 							</Flex>

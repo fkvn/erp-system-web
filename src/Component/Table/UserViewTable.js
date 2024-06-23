@@ -12,58 +12,6 @@ import { fromNow } from "../../Util/util";
 import SelectFormControl from "../Form/SelectFormControl";
 import ViewTable from "./ViewTable";
 
-const baseColumns = [
-	{
-		title: "User Code",
-		dataIndex: "userCode",
-		key: "userCode",
-
-		defaultSortOrder: "",
-	},
-	{
-		title: "User Name",
-		dataIndex: "username",
-		key: "username",
-	},
-	{
-		title: "Email",
-		dataIndex: "email",
-		key: "email",
-	},
-	{
-		title: "Status",
-		dataIndex: "status",
-		key: "status",
-	},
-	{
-		title: "Created On",
-		dataIndex: "createdOn",
-		key: "createdOn",
-		render: (_, record) => {
-			const { createdOn } = record;
-			return <Tooltip title={`${createdOn}`}>{fromNow(createdOn)} </Tooltip>;
-		},
-	},
-	{
-		title: "Created By",
-		dataIndex: "createdBy",
-		key: "createdBy",
-		render: (_, record) => {
-			const { createdBy } = record;
-			return createdBy;
-		},
-	},
-	{
-		title: "Updated By",
-		dataIndex: "updatedBy",
-		key: "updatedBy",
-		render: (_, record) => {
-			const { updatedBy, updatedOn } = record;
-			return <Tooltip title={`${fromNow(updatedOn)}`}>{updatedBy} </Tooltip>;
-		},
-	},
-];
-
 function UserViewTable() {
 	const { pathname } = useLocation();
 	const { id: userId } = useSelector((state) => state[`${USER}`]);
@@ -71,18 +19,13 @@ function UserViewTable() {
 
 	const tableId = `${userId}_${pathname.slice(1)}_${USER_VIEW_TABLE}`;
 
-	const {
-		columns: localColumns,
-		pagination,
-		filter,
-		fixedColumnIdx,
-		hiddenColumnIdx,
-		sorter,
-	} = JSON.parse(localStorage.getItem(tableId) ?? "{}");
+	const { pagination, filter = {} } = JSON.parse(
+		localStorage.getItem(tableId) ?? "{}"
+	);
 
 	const fetchParams = (pagination, filter) => ({
-		page: pagination?.current,
-		limit: pagination?.pageSize,
+		page: pagination?.current || 1,
+		limit: pagination?.pageSize || 10,
 		...(filter?.status?.length > 0 && { status: filter?.status }),
 	});
 
@@ -99,14 +42,70 @@ function UserViewTable() {
 		setParams(fetchParams(params?.pagination, params?.filter));
 	};
 
-	const columns = (localColumns || baseColumns)?.map((c) => ({
-		...c,
-		// Find the sorter object that matches the current column's key
-		defaultSortOrder: sorter?.find((s) => s.columnKey === c.key)?.order,
-	}));
+	const baseColumns = [
+		{
+			title: "User Code",
+			dataIndex: "userCode",
+			key: "userCode",
+		},
+		{
+			title: "User Name",
+			dataIndex: "username",
+			key: "username",
+		},
+		{
+			title: "Email",
+			dataIndex: "email",
+			key: "email",
+		},
+		{
+			title: "Status",
+			dataIndex: "status",
+			key: "status",
+		},
+		{
+			title: "Created On",
+			dataIndex: "createdOn",
+			key: "createdOn",
+			render: (_, record) => {
+				const { createdOn } = record;
+				return <Tooltip title={`${createdOn}`}>{fromNow(createdOn)} </Tooltip>;
+			},
+		},
+		{
+			title: "Created By",
+			dataIndex: "createdBy",
+			key: "createdBy",
+			render: (_, record) => {
+				const { createdBy } = record;
+				return createdBy;
+			},
+		},
+		{
+			title: "Updated By",
+			dataIndex: "updatedBy",
+			key: "updatedBy",
+			render: (_, record) => {
+				const { updatedBy, updatedOn } = record;
+				return <Tooltip title={`${fromNow(updatedOn)}`}>{updatedBy} </Tooltip>;
+			},
+		},
+	];
 
 	const [filterForm] = useForm();
-	const filters = (
+
+	// initialize the filter fields
+	if (filter) {
+		switch (true) {
+			case !filter.status:
+				filter.status = [];
+				break;
+			// Add more cases here if needed
+		}
+	}
+
+	// initialize the filter form
+	const formFilter = (
 		<Form
 			form={filterForm}
 			style={{
@@ -114,7 +113,7 @@ function UserViewTable() {
 			}}
 			requiredMark
 			initialValues={{
-				status: filter?.status || "",
+				status: filter?.status || [],
 			}}
 		>
 			<SelectFormControl
@@ -136,20 +135,23 @@ function UserViewTable() {
 	return (
 		<ViewTable
 			id={tableId}
-			columns={columns}
-			columnsSetting={{ fixedColumnIdx, hiddenColumnIdx }}
+			columns={baseColumns}
 			isLoading={isLoading}
 			fetchData={fetchData}
 			data={fetchResult}
-			pagination={{
-				...pagination,
-				total: totalCount,
+			params={{
+				pagination: {
+					...pagination,
+					total: totalCount,
+				},
+				filter: {
+					filter: filter,
+					filterForm: formFilter,
+					form: filterForm,
+				},
 			}}
 			isError={isError}
 			error={error}
-			filter={filter}
-			filterForm={filterForm}
-			filterChildren={filters}
 		/>
 	);
 }
