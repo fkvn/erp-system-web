@@ -85,7 +85,7 @@ function useMessage() {
 				...CONFIG,
 				...config,
 			})
-			.then(() => Promise.resolve());
+			.then(() => Promise.resolve(contentOrKey));
 	};
 
 	const destroyMessage = async () => {

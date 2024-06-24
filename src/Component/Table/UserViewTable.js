@@ -26,19 +26,21 @@ function UserViewTable() {
 	} = JSON.parse(localStorage.getItem(tableId) ?? "{}");
 
 	const fetchParams = (pagination, filter, sorter) => {
-		return {
+		const params = {
 			page: pagination?.current || 1,
 			limit: pagination?.pageSize || 10,
 			...(filter?.status?.length > 0 && { status: filter?.status }),
 			...(sorter?.length > 0 &&
 				sorter.reduce(
-					({ sortBy, sortOrder }, s) => ({
+					({ sortBy = [], sortOrder = [] }, s) => ({
 						sortBy: [...sortBy, s.columnKey],
 						sortOrder: [...sortOrder, s.order === "ascend" ? "ASC" : "DESC"],
 					}),
-					{ sortBy: [], sortOrder: [] }
+					{}
 				)),
 		};
+
+		return params;
 	};
 
 	const [params, setParams] = useState(fetchParams(pagination, filter, sorter));
@@ -48,7 +50,7 @@ function UserViewTable() {
 		isError,
 		error,
 		data: { fetchResult = [], totalCount = 1 } = {},
-	} = useFindUsersQuery(new URLSearchParams(params).toString());
+	} = useFindUsersQuery(params);
 
 	const fetchData = async (params) => {
 		setParams(fetchParams(params?.pagination, params?.filter, params?.sorter));
@@ -79,10 +81,10 @@ function UserViewTable() {
 			title: "Created On",
 			dataIndex: "createdOn",
 			key: "createdOn",
-			render: (_, record) => {
-				const { createdOn } = record;
-				return <Tooltip title={`${createdOn}`}>{fromNow(createdOn)} </Tooltip>;
-			},
+			// render: (_, record) => {
+			// 	const { createdOn } = record;
+			// 	return <Tooltip title={`${createdOn}`}>{fromNow(createdOn)} </Tooltip>;
+			// },
 		},
 		{
 			title: "Created By",

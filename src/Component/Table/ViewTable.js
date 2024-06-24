@@ -175,9 +175,34 @@ function ViewTable({
 }) {
 	const { t } = useTranslation();
 	const { errorMessage } = useMessage();
-	if (isError) {
-		errorMessage(error);
-	}
+
+	useEffect(() => {
+		if (isError) {
+			errorMessage(error, 0.5).then((e) => {
+				if (e.toLowerCase().includes("sortable")) {
+					// Remove the latest element from the sorter array
+					setTableParams((prevParams) => {
+						// Access prevParams here
+						const newSorter = prevParams.sorter.slice(0, -1); // Remove the last element
+						// Find the key of the removed sorter element
+						const removedSorterKey = newSorter[newSorter.length - 1]?.columnKey;
+						// Update tableColumns to remove defaultSortOrder for the removed sorter key
+						setTableColumns((prevColumns) =>
+							prevColumns.map((col) =>
+								col.key === removedSorterKey
+									? { ...col, sorter: "" } // Remove defaultSortOrder
+									: col
+							)
+						);
+						return {
+							...prevParams,
+							sorter: newSorter,
+						};
+					});
+				}
+			});
+		}
+	}, [isError, error]); // Add dependencies to the useEffect hook
 
 	const { columns: localColumns, sorter = [] } = JSON.parse(
 		localStorage.getItem(id) ?? "{}"
@@ -273,8 +298,10 @@ function ViewTable({
 			}),
 			// multiple's value only matters for client-side sorting
 			sorter: { multiple: 1 },
+			// prevent sorter back to default status.
+			sortDirections: ["ascend", "descend"],
 			// Find the sorter object that matches the current column's key
-			defaultSortOrder: sorter?.find((s) => s.columnKey === col.key)?.order,
+			sortOrder: sorter?.find((s) => s.columnKey === col.key)?.order,
 			// Restore render function from based column
 			render: columns.find((c) => c.key === col.key)?.render,
 		};
@@ -334,11 +361,8 @@ function ViewTable({
 				current: pagination.current,
 				pageSize: pagination.pageSize,
 			},
-			sorter: (!Array.isArray(sorter) ? [sorter] : sorter).map(
-				({ columnKey, order }) => ({
-					columnKey,
-					order,
-				})
+			sorter: (!Array.isArray(sorter) ? [sorter] : sorter).flatMap((item) =>
+				item.order ? { columnKey: item.columnKey, order: item.order } : []
 			),
 		});
 	};
@@ -454,6 +478,20 @@ function ViewTable({
 							}}
 						>
 							Clear filter
+						</Button>
+					)}
+					{tableParams?.sorter?.length > 0 && (
+						<Button
+							type="link"
+							className="p-0"
+							onClick={() => {
+								setTableParams({
+									...tableParams,
+									sorter: [],
+								});
+							}}
+						>
+							Clear sorting
 						</Button>
 					)}
 				</Flex>

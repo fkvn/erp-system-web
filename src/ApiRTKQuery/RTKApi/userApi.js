@@ -6,9 +6,12 @@ export const userApi = createApi({
 	baseQuery: axiosBaseQuery(),
 	endpoints: (builder) => ({
 		findUsers: builder.query({
-			query: (stringParams) => ({
-				url: `/users?${stringParams}`,
-			}),
+			query: (params) => {
+				const queryParams = new URLSearchParams(params);
+				return {
+					url: `/users?${queryParams.toString()}`,
+				};
+			},
 		}),
 		findUserStatus: builder.query({
 			query: () => ({
