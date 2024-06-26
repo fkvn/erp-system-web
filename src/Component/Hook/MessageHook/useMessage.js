@@ -31,7 +31,7 @@ function useMessage() {
 			.loading({
 				content: content,
 				duration: duration,
-				className: "bg-warning",
+				// className: "bg-warning",
 				...CONFIG,
 				...config,
 			})

@@ -14,8 +14,23 @@ import {
 	horizontalListSortingStrategy,
 	useSortable,
 } from "@dnd-kit/sortable";
-import { RiEqualizer2Line, RiFilter2Line } from "@remixicon/react";
-import { Button, Divider, Flex, Form, Modal, Switch, Table } from "antd";
+import {
+	RiEqualizer2Line,
+	RiFilter2Line,
+	RiRefreshLine,
+} from "@remixicon/react";
+import {
+	Alert,
+	Button,
+	Divider,
+	Flex,
+	Form,
+	Modal,
+	Slider,
+	Switch,
+	Table,
+	Tooltip,
+} from "antd";
 import Title from "antd/lib/typography/Title";
 import React, {
 	createContext,
@@ -142,18 +157,20 @@ const TableHeaderCell = (props) => {
 /** App Component */
 function ViewTable({
 	id,
+	header = {
+		title: "",
+		actions: <></>,
+	},
 	rowKey = (record) => record?.id || "",
 	columns = [],
 	data: tableData = [], // Initial data
 	fetchData = async () => {}, // Function to trigger fetching data,
+	refetch = () => {}, // Function to refetch data,
 	isLoading = true,
 	isError = false,
 	error = "",
 	virtual = true,
-	virtualProps = {
-		scrollX: 1000,
-		scrollY: 400,
-	},
+	scrollX = 1000,
 	params = {
 		pagination: {
 			pageSizeOptions: [5, 10, 20, 50, 100],
@@ -170,11 +187,15 @@ function ViewTable({
 			form: undefined, // Form.useForm = (): [FormInstance]
 		},
 	},
+	rowActions = <></>,
+	rowSelection = {},
 	footer = () => <></>,
 	tableProps = {},
 }) {
 	const { t } = useTranslation();
-	const { errorMessage } = useMessage();
+	const { loadingMessage, errorMessage } = useMessage();
+
+	const [scrollY, setScrollY] = useState(400);
 
 	useEffect(() => {
 		if (isError) {
@@ -210,12 +231,18 @@ function ViewTable({
 
 	const [tableParams, setTableParams] = useState({
 		pagination: {
-			...params?.pagination,
+			pageSizeOptions: [5, 10, 20, 50, 100],
+			showQuickJumper: true,
+			showSizeChanger: true,
+			pageSize: 10,
+			current: 1,
 			showTotal: (total, range) =>
 				t("pagination_item_count_msg", {
 					value: `${range[0]} - ${range[1]}`,
 					total: total,
 				}),
+			total: 1,
+			...params?.pagination,
 		},
 		filter: params?.filter?.filter,
 		sorter: sorter,
@@ -299,7 +326,7 @@ function ViewTable({
 			// multiple's value only matters for client-side sorting
 			sorter: { multiple: 1 },
 			// prevent sorter back to default status.
-			sortDirections: ["ascend", "descend"],
+			sortDirections: ["descend", "ascend"],
 			// Find the sorter object that matches the current column's key
 			sortOrder: sorter?.find((s) => s.columnKey === col.key)?.order,
 			// Restore render function from based column
@@ -325,6 +352,20 @@ function ViewTable({
 			},
 		});
 	}, [params?.pagination?.total]);
+
+	useEffect(() => {
+		// Check if localColumns is null or has fewer elements than columns
+		if (localColumns?.length >= 0 && localColumns.length < columns?.length) {
+			// Find the elements in columns that are not in localColumns
+			const newColumns = columns.filter(
+				(column) =>
+					!localColumns?.some((localColumn) => localColumn.key === column.key)
+			);
+
+			// Concatenate the new columns to the end of the existing localColumns
+			setTableColumns([...localColumns, ...newColumns]);
+		}
+	}, [columns]);
 
 	// update localStorage
 	useEffect(() => {
@@ -444,6 +485,7 @@ function ViewTable({
 	};
 
 	const handleClearColumnsSetting = () => {
+		setScrollY(400);
 		setTableColumns((prevColumns) =>
 			prevColumns.map((column) => ({
 				...column,
@@ -457,6 +499,27 @@ function ViewTable({
 		setIsColumnsSettingModalVisible(false);
 	};
 
+	const handleRefresh = () => {
+		loadingMessage("Refreshing...", isLoading ? 0 : 0.1);
+
+		typeof rowSelection?.setSelectedRowKeys === "function" &&
+			rowSelection?.setSelectedRowKeys([]);
+
+		// refresh datasource
+		refetch();
+	};
+
+	const handleTableHeightChange = (newHeight = 400) => setScrollY(newHeight);
+
+	const AlertNumOfSelectedItems = ({ numOfSelectedItems }) =>
+		numOfSelectedItems > 0 && (
+			<Alert
+				message={`Selected ${numOfSelectedItems} items`}
+				type="info"
+				action={rowActions}
+			/>
+		);
+
 	const TbHeader = () => (
 		<Flex vertical gap={10}>
 			<Flex
@@ -468,7 +531,7 @@ function ViewTable({
 				justify="space-between"
 			>
 				<Flex gap={10}>
-					<Title level={4}>User List</Title>{" "}
+					<Title level={4}>{header?.title || "Table Items"}</Title>{" "}
 					{numberOfFiltersApplied > 0 && (
 						<Button
 							type="link"
@@ -495,14 +558,22 @@ function ViewTable({
 						</Button>
 					)}
 				</Flex>
-				<Button
-					size="middle"
-					type={`${isFilterOrSortingOn() || isColumnSettingOn() ? "primary" : "default"}`}
-					onClick={() => setIsFilterVisible(!isFilterVisible)}
-				>
-					<RiFilter2Line size={20} />{" "}
-					{numberOfFiltersApplied > 0 ? numberOfFiltersApplied : ""} Filter
-				</Button>
+				<Flex gap={10}>
+					{header?.actions}
+					<Tooltip title="Refresh">
+						<Button className="p-2" onClick={handleRefresh}>
+							<RiRefreshLine size={20} color="blue" />
+						</Button>
+					</Tooltip>
+					<Button
+						size="middle"
+						type={`${isFilterOrSortingOn() || isColumnSettingOn() ? "primary" : "default"}`}
+						onClick={() => setIsFilterVisible(!isFilterVisible)}
+					>
+						<RiFilter2Line size={20} />{" "}
+						{numberOfFiltersApplied > 0 ? numberOfFiltersApplied : ""} Filter
+					</Button>
+				</Flex>
 			</Flex>
 			<Divider className="m-0" />
 			{isFilterVisible && (
@@ -522,10 +593,13 @@ function ViewTable({
 						type={`${isColumnSettingOn() ? "primary" : "default"}`}
 						onClick={() => setIsColumnsSettingModalVisible(true)}
 					>
-						<RiEqualizer2Line size={20} /> Columns
+						<RiEqualizer2Line size={20} /> Settings
 					</Button>
 				</Flex>
 			)}
+			<AlertNumOfSelectedItems
+				numOfSelectedItems={rowSelection?.selectedRowKeys?.length || 0}
+			/>
 		</Flex>
 	);
 
@@ -554,7 +628,10 @@ function ViewTable({
 							virtual={virtual}
 							scroll={
 								virtual
-									? { x: virtualProps.scrollX, y: virtualProps.scrollY }
+									? {
+											x: scrollX,
+											y: scrollY,
+										}
 									: undefined
 							}
 							title={TbHeader}
@@ -562,6 +639,17 @@ function ViewTable({
 								header: {
 									cell: TableHeaderCell,
 								},
+							}}
+							rowSelection={{
+								columnWidth: 70,
+								fixed: true,
+								preserveSelectedRowKeys: true,
+								selections: [
+									Table.SELECTION_ALL,
+									Table.SELECTION_INVERT,
+									Table.SELECTION_NONE,
+								],
+								...rowSelection,
 							}}
 							columns={transformedColumns}
 							dataSource={tableData}
@@ -635,13 +723,13 @@ function ViewTable({
 			<Modal
 				title={
 					<Flex gap={10}>
-						Column Settings{" "}
+						Settings{" "}
 						<Button
 							type="link"
 							className="m-0 p-0"
 							onClick={handleClearColumnsSetting}
 						>
-							<span style={{ fontSize: ".8rem", paddingBottom: ".2rem" }}>
+							<span style={{ fontSize: ".8rem", paddingBottom: ".4rem" }}>
 								Reset Fields
 							</span>
 						</Button>
@@ -657,8 +745,53 @@ function ViewTable({
 			>
 				<Divider className="m-0" />
 				<Form className="py-2">
-					<Flex gap={20} align="center" className="my-2" wrap>
-						{tableColumns.map((col, index) => (
+					<Flex vertical gap={15} className="my-2">
+						<Flex className="w-100" gap={10}>
+							<Title level={5} className="m-0 w-100">
+								Table Height
+							</Title>
+							<Slider
+								className="w-100"
+								min={50}
+								max={1000}
+								onChange={handleTableHeightChange}
+								value={typeof scrollY === "number" ? scrollY : 0}
+							/>
+						</Flex>
+					</Flex>
+					<Flex vertical gap={15} className="my-2">
+						<Table
+							size="middle"
+							columns={[
+								{ title: "Columns", key: "columns", dataIndex: "title" },
+								{ title: "Actions", dataIndex: "actions", key: "actions" },
+							]}
+							dataSource={tableColumns.map((col, index) => ({
+								title: col?.title,
+								key: index,
+								actions: (
+									<Flex gap={10} align="center" wrap>
+										<Switch
+											checkedChildren={"Fix"}
+											unCheckedChildren="UnFix"
+											checked={col?.fixed && col?.fixed !== ""}
+											onClick={() => handleFixedColumnsChange(index)}
+										/>
+										<Switch
+											unCheckedChildren={"Hide"}
+											checkedChildren="Show"
+											checked={!col?.hidden}
+											onClick={() => handleHiddenColumnsChange(index)}
+										/>
+									</Flex>
+								),
+							}))}
+							pagination={{
+								pageSize: 10,
+							}}
+						/>
+
+						{/* {tableColumns.map((col, index) => (
 							<Flex
 								key={index}
 								gap={20}
@@ -685,7 +818,7 @@ function ViewTable({
 									/>
 								</Flex>
 							</Flex>
-						))}
+						))} */}
 					</Flex>
 				</Form>
 			</Modal>

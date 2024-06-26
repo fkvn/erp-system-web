@@ -1,4 +1,4 @@
-import { Form, Tooltip } from "antd";
+import { Button, Form, Tooltip } from "antd";
 import { useForm } from "antd/es/form/Form";
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
@@ -50,7 +50,8 @@ function UserViewTable() {
 		isError,
 		error,
 		data: { fetchResult = [], totalCount = 1 } = {},
-	} = useFindUsersQuery(params);
+		refetch,
+	} = useFindUsersQuery(params, { skip: false });
 
 	const fetchData = async (params) => {
 		setParams(fetchParams(params?.pagination, params?.filter, params?.sorter));
@@ -81,10 +82,10 @@ function UserViewTable() {
 			title: "Created On",
 			dataIndex: "createdOn",
 			key: "createdOn",
-			// render: (_, record) => {
-			// 	const { createdOn } = record;
-			// 	return <Tooltip title={`${createdOn}`}>{fromNow(createdOn)} </Tooltip>;
-			// },
+			render: (_, record) => {
+				const { createdOn } = record;
+				return <Tooltip title={`${createdOn}`}>{fromNow(createdOn)} </Tooltip>;
+			},
 		},
 		{
 			title: "Created By",
@@ -146,12 +147,25 @@ function UserViewTable() {
 		</Form>
 	);
 
+	const [selectedRowKeys, setSelectedRowKeys] = useState();
+
+	const handleSelectedRowsChange = (newSelectedRowKeys) => {
+		setSelectedRowKeys(newSelectedRowKeys);
+	};
+
 	return (
 		<ViewTable
 			id={tableId}
+			header={{
+				title: "User List",
+				actions: (
+					<Button onClick={() => alert(selectedRowKeys)}>List of items</Button>
+				),
+			}}
 			columns={baseColumns}
 			isLoading={isLoading}
 			fetchData={fetchData}
+			refetch={refetch}
 			data={fetchResult}
 			params={{
 				pagination: {
@@ -166,6 +180,12 @@ function UserViewTable() {
 			}}
 			isError={isError}
 			error={error}
+			rowActions={<></>}
+			rowSelection={{
+				selectedRowKeys: selectedRowKeys,
+				setSelectedRowKeys: setSelectedRowKeys,
+				onChange: handleSelectedRowsChange,
+			}}
 		/>
 	);
 }

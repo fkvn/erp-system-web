@@ -50,7 +50,7 @@ function FixedHeader({ message = "", extra = <></> }) {
 					variant="borderless"
 					defaultValue={
 						activeCompany ?? {
-							label: "ERP System Management",
+							label: "FluxOS Order System Management",
 						}
 					}
 					style={{ maxWidth: 300 }}
@@ -61,7 +61,7 @@ function FixedHeader({ message = "", extra = <></> }) {
 					options={accessCompanies ?? []}
 					labelRender={({ label }) => (
 						<Title level={5} className=" m-0 p-2">
-							{label || "ERP System Management"}
+							{label || "FluxOS Order System Management"}
 						</Title>
 					)}
 					suffixIcon={isUserSuperAdmin || <DownOutlined />}
