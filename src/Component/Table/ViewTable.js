@@ -426,6 +426,8 @@ function ViewTable({
 			)
 		);
 
+		console.log(isError);
+
 		// 3. Update tableParams with the new filter
 		setTableParams({
 			...tableParams,
